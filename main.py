@@ -19,7 +19,7 @@ def prepare_data(file_name:str) -> dict:
     y = dataset[[0]].to_numpy()
     
     # divide e mescola il dataset in training e testing
-    data_train, data_test, label_train, label_test = train_test_split(x, y, test_size=0.2, random_state=69)
+    data_train, data_test, label_train, label_test = train_test_split(x, y, test_size=0.1, random_state=69)
 
     print("Fatto: --- %s seconds ---\n" % round(time.time() - start_time, 2))
 
@@ -30,22 +30,23 @@ def prepare_test(file_name):
     test = cv2.imread(file_name, cv2.IMREAD_GRAYSCALE)
     test = test.flatten()
     test = np.array(test, dtype=np.float32)
-    print(test)
+
+    return test
 
 
 def main():
 
-    '''
-    prepare_test('Dataset_Artista/A.png')
+    
+    
 
-    return
-    '''
+    # return
+    
     
     # prepara il dataset
     data_train, data_test, label_train, label_test = prepare_data('trimmedData.csv')
 
     # stampa il data e labels
-    print(data_train, label_train, '\n')
+    # print(data_train, label_train, '\n')
 
     # KNN
     print("Inizio il training ...")
@@ -56,10 +57,29 @@ def main():
 
     print("Fatto: --- %s seconds ---\n" % round(time.time() - start_time, 2))
 
-    ret, result, neighbours, dist = knn.findNearest(np.array([data_test[0]]), k=3)
+    # test_C = prepare_test('Dataset_Artista/B.png')
 
+    #ret, result, neighbours, dist = knn.findNearest(np.array([test_C]), k=3)
+    print("Inizio il testing ...")
+    start_time = time.time()
+
+    ret, result, neighbours, dist = knn.findNearest(data_test, k=1)
+
+    print("Fatto: --- %s seconds ---\n" % round(time.time() - start_time, 2))
+
+
+    matches = result==label_test
+    correct = np.count_nonzero(matches)
+    accuracy = correct*100.0/result.size
+    print( accuracy )
+
+    '''
     print('Previsione', 'Valore Esatto')
-    print(result, label_test[0])
+    print(result, "D che sarebbe 3")
+    print(ret)
+    print(neighbours)
+    print(dist)
+    '''
 
 if __name__ == "__main__":
     main()
