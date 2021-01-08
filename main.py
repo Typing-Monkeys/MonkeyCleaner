@@ -1,27 +1,29 @@
 import cv2
+from sklearn.model_selection import train_test_split
 import numpy as np
 import pandas as pd
 import time
 
 
-def prepare_data(file_name:str) -> tuple:
+def prepare_data(file_name:str) -> dict:
     print("Importo il dataset ...")
     start_time = time.time()
+
     # importa i ldataset con le label
-    dataset = pd.read_csv(file_name).astype('float32')
-    dataset.rename(columns={'0':'label'}, inplace=True)
+    dataset = pd.read_csv(file_name, header=None).astype('float32')
 
-    # Splitta il dataset la X - Nostri dati , e y - Label dei predict
-    x = dataset.drop('label', axis=1).to_numpy()
-    y = dataset['label'].to_numpy()
+    # elimino la prima colonna e tengo tutto il resto
+    x = dataset.drop([0], axis=1).to_numpy()
 
-    print("Fatto: --- %s seconds ---" % round(time.time() - start_time, 2))
+    # estraggo solo la prima colonna
+    y = dataset[[0]].to_numpy()
+    
+    # divide e mescola il dataset in training e testing
+    data_train, data_test, label_train, label_test = train_test_split(x, y, test_size=0.2, random_state=69)
 
-    # print("OOKKEEY")
+    print("Fatto: --- %s seconds ---\n" % round(time.time() - start_time, 2))
 
-    # x: dati
-    # y: label
-    return (x, y)
+    return (data_train, data_test, label_train, label_test)
 
 
 def prepare_test(file_name):
@@ -33,24 +35,31 @@ def prepare_test(file_name):
 
 def main():
 
-    prepare_test('A.png')
+    '''
+    prepare_test('Dataset_Artista/A.png')
 
     return
+    '''
+    
+    # prepara il dataset
+    data_train, data_test, label_train, label_test = prepare_data('trimmedData.csv')
 
-    dati, labels = prepare_data('A_Z Handwritten Data.csv')
-
-    print(dati, labels)
+    # stampa il data e labels
+    print(data_train, label_train, '\n')
 
     # KNN
     print("Inizio il training ...")
     start_time = time.time()
 
     knn = cv2.ml.KNearest_create()
-    knn.train(dati, cv2.ml.ROW_SAMPLE, labels)
+    knn.train(data_train, cv2.ml.ROW_SAMPLE, label_train)
 
-    print("Fatto: --- %s seconds ---" % round(time.time() - start_time, 2))
+    print("Fatto: --- %s seconds ---\n" % round(time.time() - start_time, 2))
 
-    # ret, result, neighbours, dist = knn.findNearest(test_cells, k=3)
+    ret, result, neighbours, dist = knn.findNearest(np.array([data_test[0]]), k=3)
+
+    print('Previsione', 'Valore Esatto')
+    print(result, label_test[0])
 
 if __name__ == "__main__":
     main()
