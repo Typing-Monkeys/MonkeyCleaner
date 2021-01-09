@@ -19,29 +19,33 @@ def prepare_data(file_name:str) -> dict:
     y = dataset[[0]].to_numpy()
     
     # divide e mescola il dataset in training e testing
-    data_train, data_test, label_train, label_test = train_test_split(x, y, test_size=0.1, random_state=69)
+    # data_train, data_test, label_train, label_test = train_test_split(x, y, test_size=0.1, random_state=69)
 
     print("Fatto: --- %s seconds ---\n" % round(time.time() - start_time, 2))
 
-    return (data_train, data_test, label_train, label_test)
+    # return (data_train, data_test, label_train, label_test)
+
+    return (x, None, y, None)
 
 
-def prepare_test(file_name):
+def prepare_test(file_name, bw=True):
     test = cv2.imread(file_name, cv2.IMREAD_GRAYSCALE)
+
+    if bw:
+        # inverte il colore dell'immagine in quanto noi primati
+        # scriviamo negro su bianco
+        test = cv2.bitwise_not(test)
+    
+    test = cv2.resize(test, (28, 28), interpolation=cv2.INTER_AREA)
+
     test = test.flatten()
     test = np.array(test, dtype=np.float32)
 
-    return test
+    return np.array([test])
 
 
 def main():
 
-    
-    
-
-    # return
-    
-    
     # prepara il dataset
     data_train, data_test, label_train, label_test = prepare_data('trimmedData.csv')
 
@@ -57,22 +61,27 @@ def main():
 
     print("Fatto: --- %s seconds ---\n" % round(time.time() - start_time, 2))
 
-    # test_C = prepare_test('Dataset_Artista/B.png')
+    test_C = prepare_test('Dataset_Artista/X_Cazzodecane.png')
 
-    #ret, result, neighbours, dist = knn.findNearest(np.array([test_C]), k=3)
+    
     print("Inizio il testing ...")
     start_time = time.time()
 
-    ret, result, neighbours, dist = knn.findNearest(data_test, k=1)
-
+    # ret, result, neighbours, dist = knn.findNearest(data_test, k=1)
+    ret, result, neighbours, dist = knn.findNearest(test_C, k=3)
+    
     print("Fatto: --- %s seconds ---\n" % round(time.time() - start_time, 2))
 
 
+    print(result)
+
+    '''
+    # Accuracy
     matches = result==label_test
     correct = np.count_nonzero(matches)
     accuracy = correct*100.0/result.size
     print( accuracy )
-
+    '''
     '''
     print('Previsione', 'Valore Esatto')
     print(result, "D che sarebbe 3")
