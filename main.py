@@ -3,8 +3,7 @@ from sklearn.model_selection import train_test_split
 import numpy as np
 import pandas as pd
 import time
-
-
+import matplotlib.pyplot as plt
 def prepare_data(file_name:str) -> dict:
     print("Importo il dataset ...")
     start_time = time.time()
@@ -44,8 +43,69 @@ def prepare_test(file_name, bw=True):
     return np.array([test])
 
 
+def prova(file):
+    img = cv2.imread(file)
+    
+    # Convert the image to gray scale 
+    gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+    
+    # Performing OTSU threshold 
+    ret, thresh1 = cv2.threshold(gray, 0, 255, cv2.THRESH_OTSU | cv2.THRESH_BINARY_INV)
+    
+    # Specify structure shape and kernel size.
+    # Kernel size increases or decreases the area
+    # of the rectangle to be detected. 
+    # A smaller value like (10, 10) will detect  
+    # each word instead of a sentence. 
+    rect_kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (40, 40))
+    
+    # Appplying dilation on the threshold image 
+    dilation = cv2.dilate(thresh1, rect_kernel, iterations = 1)
+    
+    # Finding contours 
+    contours, hierarchy = cv2.findContours(dilation, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
+    
+    print(len(contours))
+    img2 = img.copy()
+    cordinates = []
+    for cnt in contours:
+        x, y, w, h = cv2.boundingRect(cnt)
+        cordinates.append((x,y,w,h))
+        #bounding the images
+        img2 = cv2.rectangle(img2,(x,y),(x+w,y+h),(0,0,255),1)
+
+    cv2.imshow('SESSO', img2)
+    cv2.waitKey(0)
+    cv2.destroyAllWindows()
+    
+
+def prova2(file):
+    im1 = cv2.imread(file, 0)
+    im = cv2.imread(file)
+
+    ret, thresh_value = cv2.threshold(im1, 180, 255, cv2.THRESH_BINARY_INV)
+
+    kernel = np.ones((5,5), np.uint8)
+    dilated_value = cv2.dilate(thresh_value,kernel, iterations = 1)
+
+    contours, hierarchy = cv2.findContours(dilated_value, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+    cordinates = []
+    for cnt in contours:
+        x,y,w,h = cv2.boundingRect(cnt)
+        cordinates.append((x,y,w,h))
+        #bounding the images
+        
+        im = cv2.rectangle(im,(x,y),(x+w,y+h),(0,0,255),1)
+
+    cv2.imshow('SESSO', im)
+    cv2.waitKey(0)
+    cv2.destroyAllWindows()
+
 def main():
 
+    # prova('./Dataset_Artista/Sesso_Staccato.png')
+    prova2('./Dataset_Artista/Sesso_Duro.png')
+    '''
     # prepara il dataset
     data_train, data_test, label_train, label_test = prepare_data('trimmedData.csv')
 
@@ -74,7 +134,7 @@ def main():
 
 
     print(result)
-
+    '''
     '''
     # Accuracy
     matches = result==label_test
