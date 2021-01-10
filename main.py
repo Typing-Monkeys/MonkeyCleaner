@@ -3,7 +3,8 @@ from sklearn.model_selection import train_test_split
 import numpy as np
 import pandas as pd
 import time
-
+from math import sqrt
+import operator
 
 # Legge e prepara il Dataset per il Training
 def prepare_data(file_name:str) -> dict:
@@ -92,30 +93,120 @@ def monkeyRead(file, print=False):
     im1 = cv2.imread(file, 0)
     im = cv2.imread(file)
 
+    #print(im)
+
     ret, thresh_value = cv2.threshold(im1, 180, 255, cv2.THRESH_BINARY_INV)
 
     kernel = np.ones((5, 5), np.uint8)
     dilated_value = cv2.dilate(thresh_value,kernel, iterations=1)
 
-    contours, hierarchy = cv2.findContours(dilated_value, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+    contours, hierarchy = cv2.findContours(dilated_value, cv2.RETR_CCOMP, cv2.CHAIN_APPROX_SIMPLE)
+    
+    # print(hierarchy)
+    
     
     cordinates = []
     for cnt in contours:
-        x,y,w,h = cv2.boundingRect(cnt)
-        cordinates.append((x,y,w,h))
+        x, y, w, h = cv2.boundingRect(cnt)
+        cordinates.append((x, y, w, h))
 
-        # diesegna un rettangolo sopra ogni elemento trovato      
-        im = cv2.rectangle(im,(x,y),(x+w,y+h),(0,0,255),1)
+        # diesegna un rettangolo sopra ogni elemento trovato   
+        # im = cv2.rectangle(im,(x,y),(x+w,y+h),(0,0,255),1)
 
     # stampa l'immagine con i rettangoli
-    cv2.imshow('SESSO', im)
-    cv2.waitKey(0)
-    cv2.destroyAllWindows()
+    # cv2.imshow('Immagine Inscatolata', im)
+
+    # li ho fatti ritornare perche' a quanto pare non si puo' stampare roba dentro a questa 
+    # funzione perche opencv dice NO
+    return (im, cordinates, hierarchy)
+    
+
+def monkeyExtract(contorni, gerarchia):
+    gerarchia_size = len(gerarchia[0])
+    
+    g_temp = gerarchia[0]
+    # print(gerarchia_size)
+    result = []
+    
+    i = 0
+    while True:
+        if g_temp[i][-1] == -1:
+            if g_temp[i][0] == -1:
+                break
+            else:
+                result.append(contorni[i])
+        i += 1
+
+    return result
+
+
+def monkeySort(cordinate):
+    def miniSort(cordinate, index=0):
+        cordinate.sort(key = lambda x: x[index])
+        
+        return cordinate
+
+    # cordinate.sort(key=operator.itemgetter(1))
+    miniSort(cordinate, index=1)
+
+    row_size = int(sqrt(len(cordinate)))
+
+    i = 0
+    start = 0
+    stop = row_size
+    result = []
+
+    while i < row_size:
+        result += miniSort(cordinate[start:stop], index=0)
+
+        start = stop
+        stop += row_size
+        i += 1
+
+    
+    return result
+
 
 def main():
-
     # prova('./Dataset_Artista/Sesso_Staccato.png')
-    monkeyRead('./Dataset_Artista/Sesso_Duro.png')
+    im, contorni, gerarchia = monkeyRead('./Dataset_Artista/Sesso_Duro.png')
+    # monkeyRead('./Dataset_Artista/Esempio1.png')
+
+    lista = monkeyExtract(contorni, gerarchia)
+    
+    # im = cv2.imread('./Dataset_Artista/Sesso_Duro.png')
+    lista = monkeySort(lista)
+
+    
+    for elem in lista:
+
+        x, y, w, h = elem
+        
+        test = im[y:y+h, x:x+w]
+
+        cv2.imshow('Box', test)
+        cv2.waitKey(0)
+        cv2.destroyAllWindows()
+    
+    '''
+    i = 0
+    while True:
+        print(gerarchia[0][i])
+        x, y, w, h = contorni[i]
+
+        #print(x, y, w, h)
+        #print(im.size)
+        
+        test = im[y:y+h, x:x+w]
+
+        cv2.imshow('Box', test)
+        cv2.waitKey(0)
+        cv2.destroyAllWindows()
+        i += 1
+
+        (3, 7) (4, 9)
+    '''
+
     '''
     # prepara il dataset
     data_train, data_test, label_train, label_test = prepare_data('trimmedData.csv')

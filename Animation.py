@@ -196,7 +196,7 @@ def main():
     matrix[2][1] = database['d']
     matrix[2][2] = database['f']
 
-    Animation(matrix, dimension).start()
+    Animation(matrix, dimension, cellsize=200).start()
 
     '''
     global surface
