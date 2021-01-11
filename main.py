@@ -5,6 +5,12 @@ import pandas as pd
 import time
 from math import sqrt
 import operator
+import threading
+
+def printImage(img, title):
+    cv2.imshow(title, img)
+    cv2.waitKey(0)
+    cv2.destroyAllWindows()
 
 # Legge e prepara il Dataset per il Training
 def prepare_data(file_name:str) -> dict:
@@ -88,7 +94,7 @@ def monkeyRead(file, print=False):
 
     # stampa l'immagine con i rettangoli
     # cv2.imshow('Immagine Inscatolata', im)
-    
+    threading.Thread(target=printImage, args=(im, 'Immagine Inscatolata')).start()
     # li ho fatti ritornare perche' a quanto pare non si puo' stampare roba dentro a questa 
     # funzione perche opencv dice NO
     return (im, cordinates, hierarchy)
