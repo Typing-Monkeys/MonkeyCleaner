@@ -47,79 +47,65 @@ def prepare_test(file_name, bw=True):
     return np.array([test])
 
 
-'''
-def prova(file):
-    img = cv2.imread(file)
+def monkeyPrepareTest(lettere_ordinate, bw=True):
     
-    # Convert the image to gray scale 
-    gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+    result = []
     
-    # Performing OTSU threshold 
-    ret, thresh1 = cv2.threshold(gray, 0, 255, cv2.THRESH_OTSU | cv2.THRESH_BINARY_INV)
-    
-    # Specify structure shape and kernel size.
-    # Kernel size increases or decreases the area
-    # of the rectangle to be detected. 
-    # A smaller value like (10, 10) will detect  
-    # each word instead of a sentence. 
-    rect_kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (40, 40))
-    
-    # Appplying dilation on the threshold image 
-    dilation = cv2.dilate(thresh1, rect_kernel, iterations = 1)
-    
-    # Finding contours 
-    contours, hierarchy = cv2.findContours(dilation, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
-    
-    print(len(contours))
-    img2 = img.copy()
-    cordinates = []
-    for cnt in contours:
-        x, y, w, h = cv2.boundingRect(cnt)
-        cordinates.append((x,y,w,h))
-        #bounding the images
-        img2 = cv2.rectangle(img2,(x,y),(x+w,y+h),(0,0,255),1)
+    for elem in lettere_ordinate:
+        # inverete i colori di tutte le immagini
+        tmp = cv2.bitwise_not(elem)
+        tmp = cv2.resize(tmp, (28, 28), interpolation=cv2.INTER_AREA)
+        tmp = tmp.flatten()        
 
-    cv2.imshow('SESSO', img2)
-    cv2.waitKey(0)
-    cv2.destroyAllWindows()
-'''
+        tmp = np.array(tmp, dtype=np.float32)
+  
+        result.append(tmp)
+
+    return np.array(result)
 
 
 # Prende un immagine (presunta tabella) da file e 
 # ne estrae le celle
 def monkeyRead(file, print=False):
     # Importa 2 volte l'immagine per modificarne una
-    ## per dopo, importare 2 immagini potrebbe essere inutile...
-    im1 = cv2.imread(file, 0)
-    im = cv2.imread(file)
-
-    #print(im)
+    im1 = cv2.imread(file, cv2.IMREAD_GRAYSCALE)
+    im = cv2.imread(file, cv2.IMREAD_GRAYSCALE)
 
     ret, thresh_value = cv2.threshold(im1, 180, 255, cv2.THRESH_BINARY_INV)
 
-    kernel = np.ones((5, 5), np.uint8)
+    kernel = np.ones((20, 20), np.uint8)
     dilated_value = cv2.dilate(thresh_value,kernel, iterations=1)
 
     contours, hierarchy = cv2.findContours(dilated_value, cv2.RETR_CCOMP, cv2.CHAIN_APPROX_SIMPLE)
-    
-    # print(hierarchy)
-    
     
     cordinates = []
     for cnt in contours:
         x, y, w, h = cv2.boundingRect(cnt)
         cordinates.append((x, y, w, h))
 
-        # diesegna un rettangolo sopra ogni elemento trovato   
-        # im = cv2.rectangle(im,(x,y),(x+w,y+h),(0,0,255),1)
+        # diesegna un rettangolo sopra ogni elemento trovato
+        im = cv2.rectangle(im,(x,y),(x+w,y+h),(0,0,255),1)
 
     # stampa l'immagine con i rettangoli
     # cv2.imshow('Immagine Inscatolata', im)
-
+    
     # li ho fatti ritornare perche' a quanto pare non si puo' stampare roba dentro a questa 
     # funzione perche opencv dice NO
     return (im, cordinates, hierarchy)
     
+
+def monkeyGetImages(img, contorni_ordinati):
+    result = []
+
+    for elem in contorni_ordinati:
+        x, y, w, h = elem
+        
+        tmp = img[y:y+h, x:x+w]
+
+        result.append(tmp)
+
+    return result
+
 
 def monkeyExtract(contorni, gerarchia):
     gerarchia_size = len(gerarchia[0])
@@ -146,10 +132,18 @@ def monkeySort(cordinate):
         
         return cordinate
 
-    # cordinate.sort(key=operator.itemgetter(1))
     miniSort(cordinate, index=1)
 
-    row_size = int(sqrt(len(cordinate)))
+    row_size = sqrt(len(cordinate))
+
+    # controlla se la matirce e' quadrata:
+    # se non e' quadrata ritorna un errere, altrimenti
+    # converte in intero row_size
+    if row_size % 1 != 0.:
+        print("Non e' una matrice quadrata !")
+        exit(1)
+    else:
+        row_size = int(row_size)
 
     i = 0
     start = 0
@@ -168,46 +162,22 @@ def monkeySort(cordinate):
 
 
 def main():
-    # prova('./Dataset_Artista/Sesso_Staccato.png')
-    im, contorni, gerarchia = monkeyRead('./Dataset_Artista/Sesso_Duro.png')
-    # monkeyRead('./Dataset_Artista/Esempio1.png')
+    # legge immagine di test
+    im, contorni, gerarchia = monkeyRead('./Dataset_Artista/Esempio3.png')
 
+    # estrae le lettere in modo non ordinato
     lista = monkeyExtract(contorni, gerarchia)
-    
-    # im = cv2.imread('./Dataset_Artista/Sesso_Duro.png')
+    # ordina le lettere come nell'immagine
     lista = monkeySort(lista)
 
-    
-    for elem in lista:
+    # prende le lettere dall'immagine originale
+    lista = monkeyGetImages(im, lista)
 
-        x, y, w, h = elem
-        
-        test = im[y:y+h, x:x+w]
+    # print(np.array(lista))
 
-        cv2.imshow('Box', test)
-        cv2.waitKey(0)
-        cv2.destroyAllWindows()
-    
-    '''
-    i = 0
-    while True:
-        print(gerarchia[0][i])
-        x, y, w, h = contorni[i]
+    # prepara i dati per passarli al KNN
+    dati_testing = monkeyPrepareTest(lista)
 
-        #print(x, y, w, h)
-        #print(im.size)
-        
-        test = im[y:y+h, x:x+w]
-
-        cv2.imshow('Box', test)
-        cv2.waitKey(0)
-        cv2.destroyAllWindows()
-        i += 1
-
-        (3, 7) (4, 9)
-    '''
-
-    '''
     # prepara il dataset
     data_train, data_test, label_train, label_test = prepare_data('trimmedData.csv')
 
@@ -220,23 +190,26 @@ def main():
 
     knn = cv2.ml.KNearest_create()
     knn.train(data_train, cv2.ml.ROW_SAMPLE, label_train)
-
     print("Fatto: --- %s seconds ---\n" % round(time.time() - start_time, 2))
 
-    test_C = prepare_test('Dataset_Artista/X_Cazzodecane.png')
-
-    
     print("Inizio il testing ...")
     start_time = time.time()
 
     # ret, result, neighbours, dist = knn.findNearest(data_test, k=1)
-    ret, result, neighbours, dist = knn.findNearest(test_C, k=3)
+    ret, result, neighbours, dist = knn.findNearest(dati_testing, k=3)
     
     print("Fatto: --- %s seconds ---\n" % round(time.time() - start_time, 2))
 
+    result = result.reshape(
+            int(sqrt(len(result))), 
+            int(sqrt(len(result)))
+        )
 
     print(result)
-    '''
+
+    # cv2.waitKey(0)
+    # cv2.destroyAllWindows()
+
     '''
     # Accuracy
     matches = result==label_test
@@ -254,39 +227,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
-'''
-digits = cv2.imread("digits.png", cv2.IMREAD_GRAYSCALE)
-test_digits = cv2.imread("test_digits.png", cv2.IMREAD_GRAYSCALE)
-
-rows = np.vsplit(digits, 50)
-cells = []
-for row in rows:
-    row_cells = np.hsplit(row, 50)
-    for cell in row_cells:
-        cell = cell.flatten()
-        cells.append(cell)
-cells = np.array(cells, dtype=np.float32)
-
-print(cells)
-
-k = np.arange(10)
-cells_labels = np.repeat(k, 250)
-
-
-test_digits = np.vsplit(test_digits, 50)
-test_cells = []
-for d in test_digits:
-    d = d.flatten()
-    test_cells.append(d)
-test_cells = np.array(test_cells, dtype=np.float32)
-
-
-# KNN
-knn = cv2.ml.KNearest_create()
-knn.train(cells, cv2.ml.ROW_SAMPLE, cells_labels)
-ret, result, neighbours, dist = knn.findNearest(test_cells, k=3)
-
-
-#print(result)
-'''
