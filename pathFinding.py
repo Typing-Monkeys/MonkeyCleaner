@@ -3,7 +3,8 @@ from math import sqrt
 import sys
 import copy
 from Animation import Animation
-
+from Monkey import Monkey
+from time import time
 # import aima shit
 sys.path.insert(1, './aima-python')
 from search import *
@@ -113,6 +114,20 @@ def main():
     initial_state, goal_state = matrixToDict(matrice)
 
     print(initial_state, goal_state)
+
+    p_monkey = Monkey(initial_state, goal_state, matrice)
+
+    start_time = time()
+    result = breadth_first_tree_search(p_monkey)
+
+    print()
+    print(result.solution())
+    print()
+    print(result.state)
+    print(result.path_cost)
+    print(f"{(time()-start_time)}")
+
+    Animation(matrice, 3, 200).start()
 
 
 if __name__ == "__main__":
