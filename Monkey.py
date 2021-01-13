@@ -25,12 +25,12 @@ class Monkey(Problem):
         possible_actions = []
         
         # tupla(x, y). Coordinate della cella attuale del robot
-        room_index = state["monkey"]["room"]
+        room_index = state["monkey"]
         
         # "x,y". Stringa per accedere alla relativa stanza nel dizionario
         room_str = self.__str_index(*room_index)
         
-        if state["rooms"][room_str]["state"] == 3. or state["rooms"][room_str]["state"] == 21.:
+        if state[room_str] == 3. or state[room_str] == 21.:
             # definire azione di pulizia di una stanza
             possible_actions.append("CLEAN_"+room_str)
 
@@ -40,19 +40,19 @@ class Monkey(Problem):
         # in caso lo evita
         
         # sinistra
-        if room_index[1] > 0 and (state["rooms"][self.__str_index(room_index[0], room_index[1]-1)]["state"] != 23.):
+        if room_index[1] > 0 and (state[self.__str_index(room_index[0], room_index[1]-1)] != 23.):
             possible_actions.append("MOVE_"+room_str+"_"+ f"{room_index[0]},{room_index[1]-1}") # si muove a sinistra
             
         # destra
-        if room_index[1] < self.lenght - 1  and (state["rooms"][self.__str_index(room_index[0], (room_index[1] + 1))]["state"] != 23.):
+        if room_index[1] < self.lenght - 1  and (state[self.__str_index(room_index[0], (room_index[1] + 1))] != 23.):
             possible_actions.append("MOVE_"+room_str+"_"+ f"{room_index[0]},{room_index[1] + 1}")
             
         # su
-        if (room_index[0] > 0 ) and (state["rooms"][self.__str_index(room_index[0]-1, room_index[1])]["state"] != 23.):
+        if (room_index[0] > 0 ) and (state[self.__str_index(room_index[0]-1, room_index[1])] != 23.):
             possible_actions.append("MOVE_"+room_str+"_"+ f"{room_index[0]-1},{room_index[1]}")
             
         # giu
-        if (room_index[0] < self.lenght - 1 ) and (state["rooms"][self.__str_index(room_index[0]+1, room_index[1])]["state"] != 23.):
+        if (room_index[0] < self.lenght - 1 ) and (state[self.__str_index(room_index[0]+1, room_index[1])] != 23.):
             possible_actions.append("MOVE_"+room_str+"_"+ f"{room_index[0]+1},{room_index[1]}")
         
         return possible_actions
@@ -68,24 +68,23 @@ class Monkey(Problem):
         act = action.split("_")
 
         # tupla(x, y). Coordinate della stanza nella matrice
-        room_index = state["monkey"]["room"]
+        room_index = state["monkey"]
 
         # "x,y". Stringa per accedere alla relativa stanza nel dizionario
         room_str = self.__str_index(*room_index)
         
         # effettua l'azione
         if act[0] == 'CLEAN':
-            if state["rooms"][room_str]["state"] == 3.:
-                newstate["rooms"][room_str]["state"] = 2.
-            elif state["rooms"][room_str]["state"] == 21.:
-                newstate["rooms"][room_str]["state"] = 3.
+            if state[room_str] == 3.:
+                newstate[room_str] = 2.
+            elif state[room_str] == 21.:
+                newstate[room_str] = 3.
 
         elif act[0] == "MOVE":
-            current_room = act[1]
-            next_room = act[2]
-            
+
+            next_room = act[2]            
             tmp =  next_room.split(',')
-            newstate["monkey"]["room"] = (int(tmp[0]), int(tmp[1]))
+            newstate["monkey"] = (int(tmp[0]), int(tmp[1]))
         return newstate
 
 
@@ -95,9 +94,24 @@ class Monkey(Problem):
     # @return: e' lo stato finale ?
     def goal_test(self, state: dict) -> bool:
         """ Given a state, return True if state is a goal state or False, otherwise """
-        if state["monkey"]["room"] == self.goal["monkey"]["room"] and\
-             state["rooms"] == self.goal["rooms"]:
-            
+        if state == self.goal:
             return True
 
         return False
+
+
+    def astar_cost(self, node):
+        return self.heuristic(node)+ node.path_cost
+    
+
+    def h(self, node):
+        """ Return the heuristic value for a given state."""
+        count=0
+        
+        for stanza in node.state:
+            #caso in cui la stanza del nodo è diversa dallo stato goal
+            if node.state[stanza] != self.goal[stanza]:
+                if node.state[stanza] == 3.:
+                    count+= 20
+                count+= 1
+        return count

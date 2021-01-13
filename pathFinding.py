@@ -11,70 +11,27 @@ from search import *
 
 '''
 initial_state = {
-        "monkey":
-            {
-                "room": (1, 1) # la cella con valore S (18.)
-            },
-        "rooms":
-            {
-                # sono gli indici di tutte le stanze
-                "0,0": 
-                    {
-                        "state": "dirty"
-                    },
-                "0,1": 
-                    {
-                        "state":"clean"
-                    },
-                "0,2": 
-                    {
-                        "state":"inaccessible"
-                    },
-                "1,0": 
-                    {
-                        "state":"very_dirty"
-                    },
-                "1,1": 
-                    {
-                        "state":"start"
-                    },
-                "1,2": 
-                    {
-                        "state":"finish"
-                    },
+                "monkey": (1, 1) # la cella con valore S (18.),
+                
+                "0,0": 3.
+                "0,1": 18.
+                "0,2": 2.
+                "1,0": 3.
+                "1,1": 23.
+                "1,2": Robe...
                 "2,0": 
-                    {
-                        "state":"clean"
-                    },
                 "2,1": 
-                    {
-                        "state":"clean"
-                    },
                 "2,2": 
-                    {
-                        "state":"clean"
-                    },
                 "3,0": 
-                    {
-                        "state":"clean"
-                    }, 
                 "3,1": 
-                    {
-                        "state":"clean"
-                    },
                 "3,2": 
-                    {
-                        "state":"clean"
-                    }
+                    
             }
     }
 '''
 
 def matrixToDict(matrix):
-    initial = {
-        "monkey": {},
-        "rooms": {}
-    }
+    initial = {}
 
 
     n = matrix.shape[0]
@@ -84,9 +41,9 @@ def matrixToDict(matrix):
             val = matrix[i][j]
 
             if val == 18.:
-                initial["monkey"] = {"room": (i, j)}
+                initial["monkey"] = (i, j)
             
-            initial["rooms"][f'{i},{j}'] = {"state": matrix[i][j]}
+            initial[f'{i},{j}'] = matrix[i][j]
 
     goal = copy.deepcopy(initial)
     
@@ -96,10 +53,10 @@ def matrixToDict(matrix):
 
             if val == 5. or val == 18. or val == 23.:
                 if val == 5.:
-                    goal["monkey"] = {"room": (i, j)}
+                    goal["monkey"] = (i, j)
 
             else:
-                goal["rooms"][f'{i},{j}'] = {"state": 2.}
+                goal[f'{i},{j}'] = 2.
     
     return (initial, goal)
 
@@ -120,6 +77,20 @@ def main():
     start_time = time()
     result = breadth_first_tree_search(p_monkey)
 
+    print("BFS")
+    print()
+    print(result.solution())
+    print()
+    print(result.state)
+    print(result.path_cost)
+    print(f"{(time()-start_time)}\n")
+
+    Animation(matrice, 3, 200).start()
+
+    start_time = time()
+    result = astar_search(p_monkey)
+
+    print("A*")
     print()
     print(result.solution())
     print()
