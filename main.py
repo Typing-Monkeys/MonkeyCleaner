@@ -7,10 +7,51 @@ from math import sqrt
 import operator
 import threading
 
+
 def printImage(img, title):
     cv2.imshow(title, img)
     cv2.waitKey(0)
     cv2.destroyAllWindows()
+
+
+# fa scegliere all'utente il frame da prendere 
+# dalla webcam
+def monkeySee(mirror=False):
+    # apre lo stream della camera
+    cam = cv2.VideoCapture(0)
+
+    # conterra' l'immagine finale
+    result = None
+
+    while True:
+        # legge frame by frame
+        _, img = cam.read()
+
+        # specchia l'immagine se richiesto
+        if mirror: 
+            img = cv2.flip(img, 1)
+            
+        # mostra la camera a video
+        cv2.imshow('MonekyCam', img)
+
+        # registra tasti premuti
+        k = cv2.waitKey(1)
+        
+        # ESC pigiato
+        if k%256 == 27:
+            print("Premuto ESC, OOGA BOOGA...")
+            break
+
+        # SPACE pigiato
+        elif k%256 == 32:
+            # cattura il frame corrente e lo mostra a video
+            cv2.imshow('Frame catturato', img)
+            result = img
+
+    cv2.destroyAllWindows()
+
+    return result
+
 
 # Legge e prepara il Dataset per il Training
 def prepare_data(file_name:str) -> dict:
@@ -36,33 +77,23 @@ def prepare_data(file_name:str) -> dict:
     return (x, None, y, None)
 
 
-# Legge un'immagine da file e la prepara per essere usata come elemento per il Testing
-def prepare_test(file_name, bw=True):
-    test = cv2.imread(file_name, cv2.IMREAD_GRAYSCALE)
-
-    if bw:
-        # inverte il colore dell'immagine in quanto noi primati
-        # scriviamo negro su bianco
-        test = cv2.bitwise_not(test)
-    
-    test = cv2.resize(test, (28, 28), interpolation=cv2.INTER_AREA)
-
-    test = test.flatten()
-    test = np.array(test, dtype=np.float32)
-
-    return np.array([test])
-
-
+# prepara le immagini estratte per passarle al KNN
 def monkeyPrepareTest(lettere_ordinate, bw=True):
-    
     result = []
     
     for elem in lettere_ordinate:
-        # inverete i colori di tutte le immagini
-        tmp = cv2.bitwise_not(elem)
-        tmp = cv2.resize(tmp, (28, 28), interpolation=cv2.INTER_AREA)
+
+        # Crea contrasto tra bianchi e neri trasformando l'immagine in Bianco su Nero
+        _, threshold = cv2.threshold(elem,0,255,cv2.THRESH_BINARY_INV+cv2.THRESH_OTSU)
+        #tmp = cv2.bitwise_not(threshold)
+
+        # Rende l'immagine di dimenzioni 28x28
+        tmp = cv2.resize(threshold, (28, 28), interpolation=cv2.INTER_AREA)
+
+        # spalma l'immagine su un array monodimenzionale
         tmp = tmp.flatten()        
 
+        # converte l'array in un numpy array
         tmp = np.array(tmp, dtype=np.float32)
   
         result.append(tmp)
@@ -70,20 +101,27 @@ def monkeyPrepareTest(lettere_ordinate, bw=True):
     return np.array(result)
 
 
-# Prende un immagine (presunta tabella) da file e 
+# Prende un immagine (presunta tabella) e 
 # ne estrae le celle
-def monkeyRead(file, print=False):
-    # Importa 2 volte l'immagine per modificarne una
-    im1 = cv2.imread(file, cv2.IMREAD_GRAYSCALE)
-    im = cv2.imread(file, cv2.IMREAD_GRAYSCALE)
+def monkeyDetect(img, print=False):
+    # Converte l'immagine in GrayScale
+    im1 = img.copy()
+    im1 = cv2.cvtColor(im1, cv2.COLOR_BGR2GRAY)
 
-    ret, thresh_value = cv2.threshold(im1, 180, 255, cv2.THRESH_BINARY_INV)
+    # immagine usata per l'output
+    im = img.copy()
 
+    # Elimina i grigi e trasforma l'immagine in Bianco su Nero
+    ret, thresh_value = cv2.threshold(im1, 180, 255, cv2.THRESH_BINARY_INV+cv2.THRESH_OTSU)
+    
+    # dilata l'immagine per facilitare l'identificazione dei contorni
     kernel = np.ones((20, 20), np.uint8)
     dilated_value = cv2.dilate(thresh_value,kernel, iterations=1)
 
+    # trova i contorni nell'immagine
     contours, hierarchy = cv2.findContours(dilated_value, cv2.RETR_CCOMP, cv2.CHAIN_APPROX_SIMPLE)
     
+    # aggiunge le coordinate all'array da ritornare
     cordinates = []
     for cnt in contours:
         x, y, w, h = cv2.boundingRect(cnt)
@@ -92,14 +130,15 @@ def monkeyRead(file, print=False):
         # diesegna un rettangolo sopra ogni elemento trovato
         im = cv2.rectangle(im,(x,y),(x+w,y+h),(0,0,255),1)
 
-    # stampa l'immagine con i rettangoli
-    # cv2.imshow('Immagine Inscatolata', im)
-    threading.Thread(target=printImage, args=(im, 'Immagine Inscatolata')).start()
+    # Stampa l'immagine originale con evidenziato i bordi trovati
+    printImage(im, "Immagine con Bordi")
+
     # li ho fatti ritornare perche' a quanto pare non si puo' stampare roba dentro a questa 
     # funzione perche opencv dice NO
-    return (im, cordinates, hierarchy)
+    return (im1, cordinates, hierarchy)
     
 
+# estrae le immagini dalla tebella
 def monkeyGetImages(img, contorni_ordinati):
     result = []
 
@@ -113,11 +152,13 @@ def monkeyGetImages(img, contorni_ordinati):
     return result
 
 
+# seleziona solo le coordinate con la giusta Gerarchia
+# (estra le coordinate solo delle lettere e non del resto)
 def monkeyExtract(contorni, gerarchia):
     gerarchia_size = len(gerarchia[0])
     
     g_temp = gerarchia[0]
-    # print(gerarchia_size)
+
     result = []
     
     i = 0
@@ -132,6 +173,8 @@ def monkeyExtract(contorni, gerarchia):
     return result
 
 
+# ordina le coordinate in base alla loro posizione sul foglio
+# per farle corrispondere alla matrice originale
 def monkeySort(cordinate):
     def miniSort(cordinate, index=0):
         cordinate.sort(key = lambda x: x[index])
@@ -163,32 +206,30 @@ def monkeySort(cordinate):
         stop += row_size
         i += 1
 
-    
     return result
 
 
 def main():
-    # legge immagine di test
-    im, contorni, gerarchia = monkeyRead('./Dataset_Artista/Esempio3.png')
+    # prende l'immagine dalla webcam
+    im = monkeySee()
 
-    # estrae le lettere in modo non ordinato
+    # Trova coordinate e Gerarchie dell'immagine 
+    im, contorni, gerarchia = monkeyDetect(im)
+
+    # Estrae solo le coordinate dellettere in modo non ordinato
     lista = monkeyExtract(contorni, gerarchia)
-    # ordina le lettere come nell'immagine
+
+    # ordina le coordinate delle lettere come nell'immagine
     lista = monkeySort(lista)
 
     # prende le lettere dall'immagine originale
     lista = monkeyGetImages(im, lista)
 
-    # print(np.array(lista))
-
-    # prepara i dati per passarli al KNN
+    # prepara le lettere estratte per passarle al KNN
     dati_testing = monkeyPrepareTest(lista)
 
     # prepara il dataset
     data_train, data_test, label_train, label_test = prepare_data('trimmedData.csv')
-
-    # stampa il data e labels
-    # print(data_train, label_train, '\n')
 
     # KNN
     print("Inizio il training ...")
