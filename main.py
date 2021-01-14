@@ -54,7 +54,7 @@ def monkeySee(mirror=False):
 
 
 # Legge e prepara il Dataset per il Training
-def prepare_data(file_name:str) -> dict:
+def prepare_data(file_name:str, split=False, t_size=0.1) -> dict:
     print("Importo il dataset ...")
     start_time = time.time()
 
@@ -67,8 +67,13 @@ def prepare_data(file_name:str) -> dict:
     # estraggo solo la prima colonna
     y = dataset[[0]].to_numpy()
     
-    # divide e mescola il dataset in training e testing
-    # data_train, data_test, label_train, label_test = train_test_split(x, y, test_size=0.1, random_state=69)
+    if split:   
+        # divide e mescola il dataset in training e testing
+        data_train, data_test, label_train, label_test = train_test_split(x, y, test_size=t_size, random_state=69)
+        
+        print("Fatto: --- %s seconds ---\n" % round(time.time() - start_time, 2))
+
+        return (data_train, data_test, label_train, label_test)
 
     print("Fatto: --- %s seconds ---\n" % round(time.time() - start_time, 2))
 
