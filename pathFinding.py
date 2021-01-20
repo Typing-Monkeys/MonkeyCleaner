@@ -1,6 +1,7 @@
 import numpy as np
 from math import sqrt
 import sys
+import json
 import copy
 from Animation import Animation
 from Monkey import Monkey
@@ -29,6 +30,40 @@ initial_state = {
             }
     }
 '''
+
+'''
+initial_state = [[matrice con codice numerico di stanze],(x_scimmia,y_scimmia)]
+goal_state = [[]], (x_scimmia, y_scimmia)]
+'''
+
+def newFunciton(matrix):
+    n = matrix.shape[0]
+    goal_matrix = np.zeros(n*n, dtype="float32").reshape(n, n)
+    start = None
+    stop = None
+
+    for i in range(n):
+        for j in range(n):
+            if matrix[i][j] == 18.:
+                start = (i, j) # salva la posizione iniziale della scimmia
+                goal_matrix[i][j] = matrix[i][j]    # lascia invariata la cella di start
+
+            elif matrix[i][j] == 5.:
+                stop = (i, j)   # salva la posizione finale della scimmia
+                goal_matrix[i][j] = matrix[i][j] 
+
+            elif matrix[i][j] == 23.:
+                goal_matrix[i][j] = matrix[i][j]
+                
+            else:
+                goal_matrix[i][j] = 2.
+
+    
+    initial = [matrix.tolist(), start]
+    goal = [goal_matrix.tolist(), stop]
+
+    return (json.dumps(initial), json.dumps(goal))
+
 
 def matrixToDict(matrix):
     initial = {}
@@ -67,10 +102,17 @@ def main():
     matrice = np.array(a).reshape(int(sqrt(len(a))), int(sqrt(len(a))))
 
     # Animation(matrice, 3, 200).start()
+    initial_state, goal_state = newFunciton(matrice)
 
-    initial_state, goal_state = matrixToDict(matrice)
+    '''
+    print(initial_state)
+    print()
+    print(goal_state)
+    '''
+    #return
+    # initial_state, goal_state = matrixToDict(matrice)
 
-    print(initial_state, goal_state)
+    # print(initial_state, goal_state)
 
     p_monkey = Monkey(initial_state, goal_state, matrice)
 
