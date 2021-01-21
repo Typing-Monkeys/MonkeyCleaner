@@ -98,7 +98,16 @@ def matrixToDict(matrix):
 
 
 def main():
+
     a = [3., 3., 5., 23., 21., 23., 2., 2., 18.]
+    #a = [21., 21., 3., 21., 23., 2., 2., 23., 3., 23., 2., 5., 18., 2., 3., 21.]
+    '''
+    a = [21., 21., 3., 21., 2., 
+        23., 2., 2., 23., 3.,
+        3., 23., 2., 5., 23.,
+        18., 2., 3., 21., 2.,
+        3., 21., 2., 23., 21.]
+    '''
     matrice = np.array(a).reshape(int(sqrt(len(a))), int(sqrt(len(a))))
 
     # Animation(matrice, 3, 200).start()
@@ -115,7 +124,6 @@ def main():
     # print(initial_state, goal_state)
 
     p_monkey = Monkey(initial_state, goal_state, matrice)
-
     start_time = time()
     result = breadth_first_tree_search(p_monkey)
 
@@ -128,7 +136,6 @@ def main():
     print(f"{(time()-start_time)}\n")
 
     Animation(matrice, 3, 200).start()
-
     start_time = time()
     result = astar_search(p_monkey)
 
