@@ -3,6 +3,8 @@ import cv2
 from math import sqrt
 
 
+# funzione di debug per far stampare una sola immagine
+# ed attendere un evento dell'utente
 def printImage(img, title):
     cv2.imshow(title, img)
     cv2.waitKey(0)
@@ -13,7 +15,7 @@ def printImage(img, title):
 def allInOnePrepare():
     # prende l'immagine dalla webcam
     im = monkeySee()
-
+    
     # Trova coordinate e Gerarchie dell'immagine 
     im, contorni, gerarchia = monkeyDetect(im)
 
@@ -44,13 +46,14 @@ def monkeySee(mirror=False):
     while True:
         # legge frame by frame
         _, img = cam.read()
-
+        
         # specchia l'immagine se richiesto
         if mirror: 
             img = cv2.flip(img, 1)
-            
+        
+        im, _, _ = monkeyDetect(img, inwebcam=True)
         # mostra la camera a video
-        cv2.imshow('MonekyCam', img)
+        cv2.imshow('MonekyCam', im)
 
         # registra tasti premuti
         k = cv2.waitKey(1)
@@ -73,7 +76,7 @@ def monkeySee(mirror=False):
 
 # Prende un immagine (presunta tabella) e 
 # ne estrae le celle
-def monkeyDetect(img, print=False):
+def monkeyDetect(img, inwebcam=False):
     # Converte l'immagine in GrayScale
     im1 = img.copy()
     im1 = cv2.cvtColor(im1, cv2.COLOR_BGR2GRAY)
@@ -101,12 +104,19 @@ def monkeyDetect(img, print=False):
         # diesegna un rettangolo sopra ogni elemento trovato
         im = cv2.rectangle(im,(x,y),(x+w,y+h),(0,0,255),1)
 
-    # Stampa l'immagine originale con evidenziato i bordi trovati
-    printImage(im, "Immagine con Bordi")
+
+    # ritorna l'immagine con i contorni evidenziati 
+    # se chiamata dentro la webcam
+    return_img = None
+
+    if inwebcam:
+        return_img = im
+    else:
+        return_img = im1
 
     # li ho fatti ritornare perche' a quanto pare non si puo' stampare roba dentro a questa 
     # funzione perche opencv dice NO
-    return (im1, cordinates, hierarchy)
+    return (return_img, cordinates, hierarchy)
 
 
 # seleziona solo le coordinate con la giusta Gerarchia
