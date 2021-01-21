@@ -122,7 +122,6 @@ def monkeyDetect(img, inwebcam=False):
 # seleziona solo le coordinate con la giusta Gerarchia
 # (estra le coordinate solo delle lettere e non del resto)
 def monkeyExtract(contorni, gerarchia):
-    gerarchia_size = len(gerarchia[0])
     
     g_temp = gerarchia[0]
 

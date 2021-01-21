@@ -1,5 +1,6 @@
 from imgUtils import allInOnePrepare
 from knn import knn_classifier
+from pathFinding import pathFinder
 
 def main():
     
@@ -8,6 +9,8 @@ def main():
     knn_result = knn_classifier(dati_testing)
 
     print(knn_result)
+
+    pathFinder(knn_result)
 
 if __name__ == "__main__":
     main()

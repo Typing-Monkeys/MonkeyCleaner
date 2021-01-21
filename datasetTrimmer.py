@@ -8,6 +8,14 @@ x 23
 '''
 
 lettere_spastiche = [2,3,5,18,21,23]
+newLables = {
+    '2': '0',
+    '3': '1',
+    '5': '2',
+    '18': '3',
+    '21': '4',
+    '23': '5'
+    }
 
 file1 = open('A_Z Handwritten Data.csv', 'r') 
   
@@ -22,6 +30,7 @@ while True:
     label = line.split(',')[0]
     
     if int(label) in lettere_spastiche: 
+        line = line.replace(label, newLables[label], 1)
         with open("trimmedData.csv", "a") as fp2: 
             fp2.writelines(line) 
   

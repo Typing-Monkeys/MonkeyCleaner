@@ -39,7 +39,7 @@ class Monkey(Problem):
 
 
         # controlla se la cella in cui e' va pulita
-        if matrice[x][y] == 3. or matrice[x][y] == 21.:
+        if matrice[x][y] == 1. or matrice[x][y] == 4.:
             possible_actions.append("CLEAN_"+cell_str)
 
 
@@ -48,19 +48,19 @@ class Monkey(Problem):
         # in caso la evita
         
         # Sinistra
-        if y > 0 and (matrice[x][(y-1)] != 23.):
+        if y > 0 and (matrice[x][(y-1)] != 5.):
             possible_actions.append("MOVE_"+cell_str+"_"+ f"{x},{y-1}")
 
         # Destra
-        if y < self.lenght - 1  and (matrice[x][(y + 1)] != 23.):
+        if y < self.lenght - 1  and (matrice[x][(y + 1)] != 5.):
             possible_actions.append("MOVE_"+cell_str+"_"+ f"{x},{y + 1}")
 
         # Su
-        if (x > 0 ) and (matrice[(x - 1)][y] != 23.):
+        if (x > 0 ) and (matrice[(x - 1)][y] != 5.):
             possible_actions.append("MOVE_"+cell_str+"_"+ f"{x-1},{y}")
 
         # Giu
-        if (x < self.lenght - 1 ) and (matrice[(x+1)][y] != 23.):
+        if (x < self.lenght - 1 ) and (matrice[(x+1)][y] != 5.):
             possible_actions.append("MOVE_"+cell_str+"_"+ f"{x+1},{y}")
         
         # ritorna la lista delle azioni possibili
@@ -94,10 +94,10 @@ class Monkey(Problem):
 
         # pulisce la cella
         if act[0] == 'CLEAN':
-            if matrice[x][y] == 3.:
-                newMatrice[x][y] = 2.   # aggiorna la nuova matrice
-            elif matrice[x][y] == 21.:
-                newMatrice[x][y] = 3.
+            if matrice[x][y] == 1.:
+                newMatrice[x][y] = 0.   # aggiorna la nuova matrice
+            elif matrice[x][y] == 4.:
+                newMatrice[x][y] = 1.
 
         # si muove sulla cella scelta
         elif act[0] == 'MOVE':

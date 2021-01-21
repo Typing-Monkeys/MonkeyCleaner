@@ -1,16 +1,12 @@
 from sys import argv
 import numpy as np
 import cv2
-import matplotlib.pyplot as plt
 from tensorflow import keras
 from tensorflow.keras import layers
-from sklearn.model_selection import train_test_split
-from emnist import extract_training_samples
-from main import prepare_data
-from main import printImage
+from knn import prepare_data
 from keras import optimizers
 from keras.models import load_model
-from main import monkeyPrepareTest
+from imgUtils import monkeyPrepareLetters
 
 
 def training():
@@ -33,51 +29,6 @@ def training():
     x_train = x_train.astype("float32") / 255
     x_test = x_test.astype("float32") / 255
     
-    # cambia le lable del TESTING per renderle sequenziali
-    # 0, 1, ...
-
-    n_y_test = []
-    
-    for elem in y_test:
-        if elem == 2.:
-            n_y_test.append(0.)
-        elif elem == 3.:
-            n_y_test.append(1.)
-        elif elem == 5.:
-            n_y_test.append(2.)
-        elif elem == 18.:
-            n_y_test.append(3.)
-        elif elem == 21.:
-            n_y_test.append(4.)
-        elif elem == 23.:
-            n_y_test.append(5.)
-
-    n_y_test = np.array(n_y_test, dtype="float32")
-
-    # cambia le lable del TRAINING per renderle sequenziali
-    # 0, 1, ...
-    n_y_train = []
-    
-    for elem in y_train:
-        if elem == 2.:
-            n_y_train.append(0.)
-        elif elem == 3.:
-            n_y_train.append(1.)
-        elif elem == 5.:
-            n_y_train.append(2.)
-        elif elem == 18.:
-            n_y_train.append(3.)
-        elif elem == 21.:
-            n_y_train.append(4.)
-        elif elem == 23.:
-            n_y_train.append(5.)
-
-    n_y_train = np.array(n_y_train, dtype="float32")
-
-    # trasforma le lable in np.array
-    y_test = n_y_test
-    y_train = n_y_train
-
     # inizializza il modello scelto
     model = makeANNModel1()
 
@@ -110,7 +61,7 @@ def main(argv):
     elif argv[0] == '--testing':
         image_test = cv2.imread('Dataset_Artista/F_Nero.png', 0)
 
-        test = monkeyPrepareTest([image_test])
+        test = monkeyPrepareLetters([image_test])
         
         useModel("./Models/model_b128_e16.h5", test)
 

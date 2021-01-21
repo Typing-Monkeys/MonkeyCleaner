@@ -26,47 +26,42 @@ class Animation:
         # nel problema reale avremmo una matrice gia' popolata da numeri e non andra' creata.
         self.database = {
             '0.0': {
-                'name': '-',
-                'col': (0, 0, 0)
-            },
-
-            '2.0': {
                 'name': 'c',
                 'col': (255, 255, 255)
             },
 
-            '3.0': {
+            '1.0': {
                 'name': 'd',
                 'col': (210,180,140)
             },
 
-            '5.0': {
+            '2.0': {
                 'name': 'f',
                 'col': (0, 0, 255)
 
             },
 
-            '18.0': {
+            '3.0': {
                 'name': 's',
                 'col': (0, 255, 0)
             },
 
-            '21.0': {
+            '4.0': {
                 'name': 'v',
                 'col': (139, 69, 19)
             },
 
-            '23.0': {
+            '5.0': {
                 'name': 'x',
                 'col': (0, 0, 0)
             },
 
-            'c': 2.0,
-            'd': 3.0,
-            'f': 5.0,
-            's': 18.0,
-            'v': 21.0,
-            'x': 23.0
+            'c': 0.,
+            'd': 1.,
+            'f': 2.,
+            's': 3.,
+            'v': 4.,
+            'x': 5.
         }
 
     def __print_GUI(self):

@@ -51,22 +51,22 @@ def getStatesFromMatrix(matrix: np.array):
     for i in range(n):
         for j in range(n):
             # vede se la cella rappresenta l'inizio
-            if matrix[i][j] == 18.:
+            if matrix[i][j] == 3.:
                 start = (i, j)                       # salva la posizione iniziale della scimmia
                 goal_matrix[i][j] = matrix[i][j]     # lascia invariata la cella di start
             
             # vede se la cella rappresenta la fine
-            elif matrix[i][j] == 5.:
+            elif matrix[i][j] == 2.:
                 stop = (i, j)                       # salva la posizione finale della scimmia
                 goal_matrix[i][j] = matrix[i][j]    # lascia invariata la cella di stop
             
             # vede se le celle sono inaccessibili e le assegna alla matrice goal
-            elif matrix[i][j] == 23.:
+            elif matrix[i][j] == 5.:
                 goal_matrix[i][j] = matrix[i][j]
 
             # tutte le celle sporche vengono messe a pulite nella matrice goal   
             else:
-                goal_matrix[i][j] = 2.
+                goal_matrix[i][j] = 0.
 
     # crea lo stato iniziale e finale
     # (rappresentato da un array con 2 posizioni)
@@ -77,23 +77,10 @@ def getStatesFromMatrix(matrix: np.array):
     return (json.dumps(initial), json.dumps(goal))
 
 
-def main():
+def pathFinder(matrice: np.array):
 
-    # --- Tutta roba di testing che dopo non servirà --- #
 
-    a = [3., 3., 5., 23., 21., 23., 2., 2., 18.]
-    #a = [21., 21., 3., 21., 23., 2., 2., 23., 3., 23., 2., 5., 18., 2., 3., 21.]
-    '''
-    a = [21., 21., 3., 21., 2., 
-        23., 2., 2., 23., 3.,
-        3., 23., 2., 5., 23.,
-        18., 2., 3., 21., 2.,
-        3., 21., 2., 23., 21.]
-    '''
-    matrice = np.array(a).reshape(int(sqrt(len(a))), int(sqrt(len(a))))
     n = matrice.shape[0] # la matrice deve essere nxn
-
-    # --- --- --- --- --- --- --- --- --- --- --- --- --- #
 
     # deduce lo stato iniziale e finale dalla matrice
     initial_state, goal_state = getStatesFromMatrix(matrice)
@@ -102,7 +89,7 @@ def main():
     p_monkey = Monkey(initial_state, goal_state, n)
     
     # -------------- BFS -------------- #
-    
+
     # salva l'ora dell'inizio della prova per
     # calcolare il tempo di esecuzione
     start_time = time()
@@ -144,6 +131,3 @@ def main():
     Animation(matrice, n, 200).start()
 
     # -------------- --- -------------- #
-
-if __name__ == "__main__":
-    main()
