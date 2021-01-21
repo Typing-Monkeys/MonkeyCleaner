@@ -3,198 +3,161 @@ import numpy as np
 import copy
 import json
 
-# import aima shit
 sys.path.insert(1, './aima-python')
 from search import *
 
+
 class Monkey(Problem):
-    
-    def __init__(self, initial, goal, matrix: np.array):
-        """ Define goal state and initialize a problem """
+    def __init__(self, initial: json , goal: json, lenght: np.array):
+        super().__init__(initial, goal)
+
         self.initial = initial
         self.goal = goal
+        self.lenght = lenght
 
-        Problem.__init__(self, initial, goal)
-
-        self.rooms = matrix
-        self.lenght = matrix.shape[0]
-
+    # funzione che dati 2 interi restituisce una stringa che
+    # verra' inserita nel nome del comando
     def __str_index(self, x: int, y: int) -> str:
         return f"{x},{y}"
-
-    def actions(self, state: dict) -> list:
+    
+    # data la posizione della scimmia guarda le possibili azioni che può compiere e le salva in una lista
+    def actions(self, state: json) -> list:
+        # trasforma il JSON (!!!) in un array usabile
         jstate = json.loads(state)
+
+        # lista che contiene tutte le possibili azioni
         possible_actions = []
         
-        # tupla(x, y). Coordinate della cella attuale del robot
-        room_index = jstate[1]
+        # prende la posizione della scimmia
         x, y = jstate[1]
+
+        # prende la matrice dello stato attuale
         matrice = jstate[0]
-        room_str = self.__str_index(*room_index)
+        
+        # prende la stringa che andra' all'interno delle azioni
+        cell_str = self.__str_index(x, y)
 
+
+        # controlla se la cella in cui e' va pulita
         if matrice[x][y] == 3. or matrice[x][y] == 21.:
-            possible_actions.append("CLEAN_"+room_str)
+            possible_actions.append("CLEAN_"+cell_str)
 
-        '''
-        # "x,y". Stringa per accedere alla relativa stanza nel dizionario
-        room_str = self.__str_index(*room_index)
-        
-        if state[room_str] == 3. or state[room_str] == 21.:
-            # definire azione di pulizia di una stanza
-            possible_actions.append("CLEAN_"+room_str)
-        '''
-        
+
         # Controlla dove puo' muoversi
-        # Controlla anche se la casella in cui vorra' muoversi e' un muro,
-        # in caso lo evita
+        # Controlla anche se la casella in cui vorrà muoversi è una cella inaccessibile,
+        # in caso la evita
         
-        #sinistra
-        if room_index[1] > 0 and (matrice[room_index[0]][(room_index[1]-1)] != 23.):
-            possible_actions.append("MOVE_"+room_str+"_"+ f"{room_index[0]},{room_index[1]-1}") # si muove a sinistra
+        # Sinistra
+        if y > 0 and (matrice[x][(y-1)] != 23.):
+            possible_actions.append("MOVE_"+cell_str+"_"+ f"{x},{y-1}")
 
-        # destra
-        if room_index[1] < self.lenght - 1  and (matrice[room_index[0]][(room_index[1] + 1)] != 23.):
-            possible_actions.append("MOVE_"+room_str+"_"+ f"{room_index[0]},{room_index[1] + 1}")  
+        # Destra
+        if y < self.lenght - 1  and (matrice[x][(y + 1)] != 23.):
+            possible_actions.append("MOVE_"+cell_str+"_"+ f"{x},{y + 1}")
 
-        # su
-        if (room_index[0] > 0 ) and (matrice[(room_index[0] - 1)][room_index[1]] != 23.):
-            possible_actions.append("MOVE_"+room_str+"_"+ f"{room_index[0]-1},{room_index[1]}")
+        # Su
+        if (x > 0 ) and (matrice[(x - 1)][y] != 23.):
+            possible_actions.append("MOVE_"+cell_str+"_"+ f"{x-1},{y}")
 
-        # giu
-        if (room_index[0] < self.lenght - 1 ) and (matrice[(room_index[0]+1)][room_index[1]] != 23.):
-            possible_actions.append("MOVE_"+room_str+"_"+ f"{room_index[0]+1},{room_index[1]}")     
-
-        '''
-        # sinistra
-        if room_index[1] > 0 and (state[self.__str_index(room_index[0], room_index[1]-1)] != 23.):
-            possible_actions.append("MOVE_"+room_str+"_"+ f"{room_index[0]},{room_index[1]-1}") # si muove a sinistra
-            
-        # destra
-        if room_index[1] < self.lenght - 1  and (state[self.__str_index(room_index[0], (room_index[1] + 1))] != 23.):
-            possible_actions.append("MOVE_"+room_str+"_"+ f"{room_index[0]},{room_index[1] + 1}")
-            
-        # su
-        if (room_index[0] > 0 ) and (state[self.__str_index(room_index[0]-1, room_index[1])] != 23.):
-            possible_actions.append("MOVE_"+room_str+"_"+ f"{room_index[0]-1},{room_index[1]}")
-            
-        # giu
-        if (room_index[0] < self.lenght - 1 ) and (state[self.__str_index(room_index[0]+1, room_index[1])] != 23.):
-            possible_actions.append("MOVE_"+room_str+"_"+ f"{room_index[0]+1},{room_index[1]}")
+        # Giu
+        if (x < self.lenght - 1 ) and (matrice[(x+1)][y] != 23.):
+            possible_actions.append("MOVE_"+cell_str+"_"+ f"{x+1},{y}")
         
-        '''
-        
+        # ritorna la lista delle azioni possibili
         return possible_actions
 
-
-
-    def result(self, state: dict, action: str) -> dict:
-        """
-        Given state and action, return a new state that is the result of the action.
-        Action is assumed to be a valid action in the state
-        """
+    def result(self, state: json, action: str) -> json:
+        # trasfroma il JSON (!!!) in un array usabile
         jstate = json.loads(state)
+
+        # copia il vecchio stato per creare quello nuovo
         newstate = copy.deepcopy(state)
+
+        # converte il nuovo stato (JSON [!!!]) in un array usabile
         newjstate = json.loads(newstate)
 
+        # splitta le azioni per _
+        # CLEAN_CELLA 
+        # oppure
+        # MOVE_CELLA_CELLA
         act = action.split("_")
 
-        # tupla(x, y). Coordinate della stanza nella matrice
-        room_index = jstate[1]
+        # posizione attuale della scimmia
         x, y = jstate[1]
+
+        # matrice che rappresenta lo stato attuale del mondo
         matrice = jstate[0]
+
+        # nuova matrice che rappresenta lo stato dopo aver
+        # effettuato l'azione scelta
         newMatrice = newjstate[0]
-        # "x,y". Stringa per accedere alla relativa stanza nel dizionario
-        #room_str = self.__str_index(*room_index)
-        
+
+        # pulisce la cella
         if act[0] == 'CLEAN':
             if matrice[x][y] == 3.:
-                newMatrice[x][y] = 2.
+                newMatrice[x][y] = 2.   # aggiorna la nuova matrice
             elif matrice[x][y] == 21.:
                 newMatrice[x][y] = 3.
-        
+
+        # si muove sulla cella scelta
         elif act[0] == 'MOVE':
-            next_room = act[2]            
-            tmp =  next_room.split(',')
+            # la cella in cui deve muoversi
+            next_cell = act[2]    
+            # dalla stringa prende le coordinate della cella in cui deve muoversi  
+            tmp =  next_cell.split(',')
+            
+            # aggiorna le coordinate della scimmia
             newjstate[1] = (int(tmp[0]), int(tmp[1]))
 
-        '''
-        # effettua l'azione
-        if act[0] == 'CLEAN':
-            if state[room_str] == 3.:
-                newstate[room_str] = 2.
-            elif state[room_str] == 21.:
-                newstate[room_str] = 3.
-
-        elif act[0] == "MOVE":
-
-            next_room = act[2]            
-            tmp =  next_room.split(',')
-            newstate["monkey"] = (int(tmp[0]), int(tmp[1]))
-        '''
-        
+        # ritorna il nuovo stato sotto forma di JSON (!!!)
         return json.dumps(newjstate)
-
 
     # Ritorna True se lo stato passatogli e' lo stato goal
     #
     # @state: stato attuale
     # @return: e' lo stato finale ?
-    def goal_test(self, state: dict) -> bool:
-        """ Given a state, return True if state is a goal state or False, otherwise """
-        
+    def goal_test(self, state: json) -> bool:
+        # trasforma gli stati iniziali e finali da JSON (!!!)
+        # in array utilizzabili
         jstate = json.loads(state)
         jgoal = json.loads(self.goal)
 
-        #print(jstate)
-
-        #matrice = jstate[0]
-        #monkey = jstate[1]
+        # prende la matrice e la posizione attuale della scimmia
+        # dallo stato attuale
         matrice, monkey = jstate
+
+        # trasforma la matrice in un np.array per
+        # sfruttare le sue funzioni belle di comparazione :^)
         matrice = np.array(matrice)
+
+        # converte la matrice goal in un np.array
+        # per sfruttare le sue funzioni belle di comparazione :^)
         goal = np.array(jgoal[0])
-        '''
-        print(matrice)
-        print()
-        #print(goal)
-        '''
+
+        # controlla se tutti gli elementi delle matrici sono uguali
         result = matrice == goal
 
+        # se i 2 stati corrispondono allora siamo nello stato Goal
         if result.all() and monkey == jgoal[1]:
-            
             return True
 
+        # non siamo nello stato Goal
         return False
 
-        '''
-        if state == self.goal:
-            return True
-
-        return False
-        '''
-
-    def astar_cost(self, node):
-        return self.heuristic(node)+ node.path_cost
-    
-
+    # MissPlacedBananasHeuristica per A*
     def h(self, node):
-        """ Return the heuristic value for a given state."""
+        # trasforma gli stati iniziali e finali da JSON (!!!)
+        # in array utilizzabili
         jstate = json.loads(node.state)
         jgoal = json.loads(self.goal)
 
+        # converte le matrici degli stati in np.array
+        # per sfruttare le sue funzioni belle di comparazione :^)
         matrice = np.array(jstate[0])
         goal = np.array(jgoal[0])
 
+        # controlla quanti elementi sono uguali
         cmp = matrice == goal
 
+        # ritorna il numero di elementi differenti
         return np.count_nonzero(cmp == False)
-        '''
-        count=0
-        
-        for stanza in node.state:
-            #caso in cui la stanza del nodo è diversa dallo stato goal
-            if node.state[stanza] != self.goal[stanza]:
-                #if node.state[stanza] == 3.:
-                #    count+= 20
-                count+= 1
-        return count
-        '''
