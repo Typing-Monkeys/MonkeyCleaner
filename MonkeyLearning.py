@@ -1,15 +1,16 @@
 from sys import argv
 import numpy as np
 import cv2
+from math import sqrt
 from tensorflow import keras
 from tensorflow.keras import layers
 from knn import prepare_data
 from keras import optimizers
 from keras.models import load_model
-from imgUtils import monkeyPrepareLetters
+from imgUtils import allInOnePrepare
 
 
-def training():
+def training(b_size=128, epoche=16):
     # Crea un modello di Rete Neurale
     def makeANNModel1():
         model  = keras.Sequential()
@@ -33,8 +34,8 @@ def training():
     model = makeANNModel1()
 
     # inizializza le epoche e i batch
-    b_size = 128
-    epoche = 16
+    # b_size = 128
+    # epoche = 16
     
     # allena il modello
     history = model.fit(x_train, y_train, batch_size=b_size, epochs=epoche, validation_data=(x_test, y_test))
@@ -43,28 +44,49 @@ def training():
     model.save(f'./Models/model_b{b_size}_e{epoche}.h5')
 
 
-def useModel(model_name, test_images: list, test_labels=None):
-    # Restore the weights
+def useModel(model_name, test_images: np.array, test_labels=None):
+    # Carica un modello già allenato
     model = load_model(model_name)
+    # Riconosce le lettere e le ritorna sottoforma di matrice di Float
+    res = model.predict_classes(test_images)
 
-    # res = model.predict_classes(test_images[0:1])
-    # print(res, test_labels[0])
-    for elem in test_images:
-        res = model.predict_classes(test_images)
-        print(res)
-    
+    res = res.reshape(
+            int(sqrt(len(res))), 
+            int(sqrt(len(res)))
+        ).astype("float32")
 
-def main(argv):
-    if argv[0] == '--training':
+    return res
+
+
+def annClassifier(argomento):
+    # Inizia il training con bachsize e epoche di default
+    if argomento == '--training':
         training()
-
-    elif argv[0] == '--testing':
-        image_test = cv2.imread('Dataset_Artista/F_Nero.png', 0)
-
-        test = monkeyPrepareLetters([image_test])
+        exit()
+    # Fa training ripetuto con diversi bachsize e epoche e ogni volta ne salva il modello creato 
+    #(funzione principalmente per il testing di diversi modelli di ANN)
+    elif argomento == '--Mtraining':
+        # i dati sono nel seguente formato:
+        # (batch_size, epoche)
+        t_data = [
+            (128, 16), #default
+            (10, 16), # probabile overfitting
+            (5000, 500), # ?
+            (64, 10), # non ci aspettiamo tanti problemi
+            ]
         
-        useModel("./Models/model_b128_e16.h5", test)
+        for elem in t_data:
+            training(*elem)
 
+        exit()
+    
+    # Se l'arogmento passato al main è --testing usa un modello già allenato per effettuare la classificazione
+    # Ritorna un mumpyArray che verrà usato dal pathfinding
+    elif argomento == '--testing':
+        image_test = allInOnePrepare()
+        return useModel("./Models/model_b128_e16.h5", image_test)
 
-if __name__ == "__main__":
-    main(argv[1:])
+    # Contorllo degli argomenti passati, se sono errati ritorna l'avviso con il comando errato passatogli
+    elif argomento != '--training' and argomento != '--testing' and argomento != '--Mtraining':
+        print(f"Errore nel parametro di input, non risconosciuto: {argomento}")
+        exit()
