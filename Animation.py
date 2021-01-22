@@ -3,7 +3,7 @@ import pygame
 
 
 class Animation:
-    def __init__(self, matrix: np.array, dimension: int, cellsize=50, title="Typing Monkeys's Deepest Snake"):
+    def __init__(self, matrix: np.array, dimension: int, cellsize=50, title="Peppone's Bizarre Adventure"):
         # la matrice viene copiata per evitare che venga modificata anche al di fuore di questa classe
         self.matrix = np.copy(matrix)
 
