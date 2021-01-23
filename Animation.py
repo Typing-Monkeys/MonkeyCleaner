@@ -79,6 +79,7 @@ class Animation:
         self.neuron_activation2 = pygame.image.load('./Animation_imgs/Neuron_Activation2.png').convert_alpha()
         self.neuron_activation2 = pygame.transform.scale(self.neuron_activation2, (self.cellsize, self.cellsize))
 
+        
 
         # contiene le relazioni Numero-Lettera e Lettera-Numer
         # Nelle posizioni del dizionario rappresentate da numeri ('2.0') c'è 
@@ -288,16 +289,27 @@ class Animation:
         # l'indice punta all'azione successiva
         self.index += 1
 
+    # imposta le proprietà della finestra
+    def __setWindowStats(self):
+        # imposta l'icona
+        icon = pygame.image.load('./Animation_imgs/Macaco_Stealth.png')
+        pygame.display.set_icon(icon)
+
+        # imposta il titolo
+        pygame.display.set_caption(self.title)
+
     # avvia l'animazione
     def start(self):
         # prepara la finestra di pygame
         pygame.init()
 
+        self.__setWindowStats()
+
+        # crea la superficie dove verrà disegnata l'animazione
         self.surface = pygame.display.set_mode((self.dimension * self.cellsize, self.dimension * self.cellsize))
-        pygame.display.set_caption(self.title)
 
         self.__load_imgs()
-
+        
         # stampa a video la matrice
         self.__print_GUI()
         

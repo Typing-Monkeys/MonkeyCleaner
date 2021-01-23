@@ -9,7 +9,7 @@ from MonkeyLearning import annClassifier
 # Se l'argomento è --ann gli va passato un secondo argomento che può essere di 2 tipi :
 # --training -> fa il training del modello
 # --testing -> classifica l'immagine di input con ann
-def main(argv):
+def main(argv: list):
 
     if argv[0] == '--knn':
         
