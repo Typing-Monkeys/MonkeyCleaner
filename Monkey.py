@@ -145,7 +145,7 @@ class Monkey(Problem):
         return False
 
     # MissPlacedBananasHeuristica per A*
-    def h(self, node):
+    def h(self, node) -> int:
         # trasforma gli stati iniziali e finali da JSON (!!!)
         # in array utilizzabili
         jstate = json.loads(node.state)

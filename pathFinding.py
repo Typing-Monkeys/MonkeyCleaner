@@ -9,6 +9,7 @@ from time import time
 
 sys.path.insert(1, './aima-python')
 from search import *
+import os
 
 
 '''
@@ -34,7 +35,7 @@ goal_state = [
     ]
 '''
 
-def getStatesFromMatrix(matrix: np.array):
+def getStatesFromMatrix(matrix: np.array) -> tuple:
     # dimenzione della matrice
     n = matrix.shape[0]
 
@@ -79,6 +80,8 @@ def getStatesFromMatrix(matrix: np.array):
 
 def pathFinder(matrice: np.array):
 
+    # clear in base al sistema dove viene fatto partire il programma
+    os.system('cls' if os.name == 'nt' else 'clear')
 
     n = matrice.shape[0] # la matrice deve essere nxn
 
@@ -89,6 +92,8 @@ def pathFinder(matrice: np.array):
     p_monkey = Monkey(initial_state, goal_state, n)
 
     # -------------- A* -------------- #
+    print("A*\n")
+
     # salva l'ora dell'inizio della prova per
     # calcolare il tempo di esecuzione
     start_time = time()
@@ -97,20 +102,17 @@ def pathFinder(matrice: np.array):
     result = astar_search(p_monkey)
 
     # stampa le soluzione, i passi impegati ed il tempo impegato usando A*
-    print("A*")
-    print()
-    print(result.solution())
-    print()
-    print(result.state)
-    print()
-    print(result.path_cost)
-    print(f"{(time()-start_time)}")
-
+    print(f"Execution Time: {(time()-start_time)}")
+    print(f"Solution:\n {result.solution()}")
+    print(f"Path Cost: {result.path_cost}")
+    
+    # fa partire l'animazione con la soluzione trovata da A*
     Animation(matrice, n, result.solution()).start()
-
+    
     # -------------- --- -------------- #
     
     # -------------- BFS -------------- #
+    print("BFS\n")
 
     # salva l'ora dell'inizio della prova per
     # calcolare il tempo di esecuzione
@@ -119,18 +121,13 @@ def pathFinder(matrice: np.array):
     # risolve il problema usano la BFS
     result = breadth_first_tree_search(p_monkey)
 
-
     # stampa le soluzione, i passi impegati ed il tempo impegato usando BFS
-    print("BFS")
-    print()
-    print(result.solution())
-    print()
-    print(result.state)
-    print()
-    print(result.path_cost)
-    print(f"{(time()-start_time)}\n")
+    print(f"Execution Time: {(time()-start_time)}\n")
+    print(f"Solution:\n {result.solution()}\n")
+    print(f"Path Cost: {result.path_cost}\n")
+    
 
-    # Animation(matrice, n, 200).start()
+    # fa partire l'animazione con la soluzione trovata da BFS
     Animation(matrice, n, result.solution()).start()
     
     # -------------- --- -------------- #
