@@ -87,6 +87,28 @@ def pathFinder(matrice: np.array):
 
     # crea il problema
     p_monkey = Monkey(initial_state, goal_state, n)
+
+    # -------------- A* -------------- #
+    # salva l'ora dell'inizio della prova per
+    # calcolare il tempo di esecuzione
+    start_time = time()
+
+    # risolve il problema usano la A*
+    result = astar_search(p_monkey)
+
+    # stampa le soluzione, i passi impegati ed il tempo impegato usando A*
+    print("A*")
+    print()
+    print(result.solution())
+    print()
+    print(result.state)
+    print()
+    print(result.path_cost)
+    print(f"{(time()-start_time)}")
+
+    Animation(matrice, n, result.solution()).start()
+
+    # -------------- --- -------------- #
     
     # -------------- BFS -------------- #
 
@@ -104,30 +126,11 @@ def pathFinder(matrice: np.array):
     print(result.solution())
     print()
     print(result.state)
+    print()
     print(result.path_cost)
     print(f"{(time()-start_time)}\n")
 
-    Animation(matrice, n, 200).start()
+    # Animation(matrice, n, 200).start()
+    Animation(matrice, n, result.solution()).start()
     
-    # -------------- --- -------------- #
-
-    # -------------- A* -------------- #
-    # salva l'ora dell'inizio della prova per
-    # calcolare il tempo di esecuzione
-    start_time = time()
-
-    # risolve il problema usano la A*
-    result = astar_search(p_monkey)
-
-    # stampa le soluzione, i passi impegati ed il tempo impegato usando A*
-    print("A*")
-    print()
-    print(result.solution())
-    print()
-    print(result.state)
-    print(result.path_cost)
-    print(f"{(time()-start_time)}")
-
-    Animation(matrice, n, 200).start()
-
     # -------------- --- -------------- #

@@ -11,7 +11,7 @@ class Animation:
         
         # dimensioni della stampa a video
         self.dimension = dimension
-        self.cellsize = cellsize
+        self.cellsize = self.__findCellSize()
 
         self.solutions = solutions
 
@@ -19,7 +19,12 @@ class Animation:
         self.title = title
 
         self.col_grid = (255, 255, 255)
-        self.surface = None        
+        self.surface = None
+
+        self.index = 0
+
+    def __findCellSize(self):
+        return 300 - (self.dimension-3)*50
 
     def __load_imgs(self):
         self.startbg = pygame.image.load('./Animation_imgs/Appartamento_Scandinavo_di_Peppone.png').convert_alpha()
@@ -47,6 +52,12 @@ class Animation:
         self.walk_peppone = pygame.transform.scale(self.walk_peppone, (self.cellsize, self.cellsize))
 
         self.flip_walk_peppone = pygame.transform.flip(self.walk_peppone, True, False)
+
+        self.neuron_activation1 = pygame.image.load('./Animation_imgs/Neuron_Activation1.png').convert_alpha()
+        self.neuron_activation1 = pygame.transform.scale(self.neuron_activation1, (self.cellsize, self.cellsize))
+
+        self.neuron_activation2 = pygame.image.load('./Animation_imgs/Neuron_Activation2.png').convert_alpha()
+        self.neuron_activation2 = pygame.transform.scale(self.neuron_activation2, (self.cellsize, self.cellsize))
 
         # self.rect = self.startbg.get_rect()
 
@@ -78,15 +89,20 @@ class Animation:
             'x': 5.
         }
 
+    def __aspetta(self, cicli, tempo):
+        for _ in range(cicli):
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    pygame.quit()
+                    quit()
+            pygame.time.wait(tempo)
+
     def __print_GUI(self):
         pygame.mixer.music.load('./Animation_imgs/Monkey_beat.mp3')
-        pygame.mixer.music.play(-1, 0.0)
+        pygame.mixer.music.play(-1, 8.)
         pygame.mixer.music.set_volume(0.1)
 
-        '''
-        soundObj = pygame.mixer.Sound('./Animation_imgs/Monkey_beat.mp3')
-        soundObj.play()
-        '''
+        peppone_index = None
 
         for i in range(self.dimension):
             for j in range(self.dimension):
@@ -99,10 +115,21 @@ class Animation:
                 self.surface.blit(col, (j* self.cellsize, i*self.cellsize))
                 
                 if dict_index == "3.0":
+                    peppone_index = (i, j)
                     self.surface.blit(self.peppone, (j* self.cellsize, i*self.cellsize))
 
         pygame.display.update()
-        sleep(1)
+        self.__aspetta(1000, 5)
+
+        self.surface.blit(self.startbg, (peppone_index[1]* self.cellsize, peppone_index[0]*self.cellsize))
+        self.surface.blit(self.neuron_activation1, (peppone_index[1]* self.cellsize, peppone_index[0]*self.cellsize))
+        pygame.display.update()
+        self.__aspetta(1000, 3)
+
+        self.surface.blit(self.startbg, (peppone_index[1]* self.cellsize, peppone_index[0]*self.cellsize))
+        self.surface.blit(self.neuron_activation2, (peppone_index[1]* self.cellsize, peppone_index[0]*self.cellsize))
+        pygame.display.update()
+        self.__aspetta(900, 2)
 
     def __move(self, mossa):
         dati = mossa.split('_')
@@ -129,7 +156,7 @@ class Animation:
             rate = 40
 
             for i in range(rate):
-
+                
                 # ridisegna la cella attuale
                 self.surface.blit(self.pratino, (y_attuale* self.cellsize, x_attuale*self.cellsize))
                 self.surface.blit(col_attuale, (y_attuale* self.cellsize, x_attuale*self.cellsize))
@@ -154,7 +181,7 @@ class Animation:
                         self.surface.blit(self.walk_peppone, (y_attuale*self.cellsize, (x_attuale*self.cellsize)+(self.cellsize/rate)*(i+1)))
 
                 pygame.display.update()
-                sleep(0.05)
+                self.__aspetta(20, 1)
             
         elif dati[0] == 'CLEAN':
             x_attuale, y_attuale = dati[1].split(',')
@@ -174,8 +201,29 @@ class Animation:
             self.surface.blit(self.peppone, (y_attuale* self.cellsize, x_attuale*self.cellsize))
             
             pygame.display.update()
-            sleep(2)
+            self.__aspetta(750, 2)
+
+    def __nextmove(self):
+        if self.index >= len(self.solutions):
+            self.alive = False
             
+            x, y = self.solutions[-1].split('_')[-1].split(',')
+            x = int(x)
+            y = int(y)
+            
+            self.surface.blit(self.stopbg, (y* self.cellsize, x*self.cellsize))
+            self.surface.blit(self.peppone, (y* self.cellsize, x*self.cellsize))
+            pygame.display.update()
+
+            self.__aspetta(1000, 2)
+            return
+        
+        azione = self.solutions[self.index]
+
+        self.__move(azione)
+
+        self.index += 1
+
     def start(self):
         # prepara la finestra di pygame
         pygame.init()
@@ -187,21 +235,18 @@ class Animation:
 
         # stampa a video la matrice
         self.__print_GUI()
+        
+        self.alive = True
 
         # attende l'evento quit di pygame per terminare
-        while True:
+        while self.alive: 
+
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     pygame.quit()
                     return
-                
-            for solution in self.solutions:
-                self.__move(solution)
             
-            input()
-            quit()
-                
-
+            self.__nextmove()
 
 
 def main():
