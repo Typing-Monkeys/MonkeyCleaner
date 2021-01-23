@@ -2,7 +2,7 @@ from imgUtils import allInOnePrepare
 from knn import knn_classifier
 from pathFinding import pathFinder
 from sys import argv
-from MonkeyLearning import annClassifier
+from monkeyLearning import annClassifier
 
 # Il principio di tutto
 # Se l'argomento passato è --knn allora fa una classificazione con il knn

@@ -46,6 +46,9 @@ def getStatesFromMatrix(matrix: np.array) -> tuple:
     start = None
     stop = None
 
+    count_inizio = 0
+    count_fine = 0
+    
     # controlla tutta la matrice e nel mentre assegna alla 
     # matrice Goal i valori che dovra' avere alla fine dell'esecuzione
     # (le stanze sporche dovranno essere pulite)
@@ -54,11 +57,13 @@ def getStatesFromMatrix(matrix: np.array) -> tuple:
             # vede se la cella rappresenta l'inizio
             if matrix[i][j] == 3.:
                 start = (i, j)                       # salva la posizione iniziale della scimmia
+                count_inizio += 1
                 goal_matrix[i][j] = matrix[i][j]     # lascia invariata la cella di start
             
             # vede se la cella rappresenta la fine
             elif matrix[i][j] == 2.:
                 stop = (i, j)                       # salva la posizione finale della scimmia
+                count_fine += 1
                 goal_matrix[i][j] = matrix[i][j]    # lascia invariata la cella di stop
             
             # vede se le celle sono inaccessibili e le assegna alla matrice goal
@@ -68,6 +73,10 @@ def getStatesFromMatrix(matrix: np.array) -> tuple:
             # tutte le celle sporche vengono messe a pulite nella matrice goal   
             else:
                 goal_matrix[i][j] = 0.
+
+    if count_inizio != 1 or count_fine != 1:
+        print(f"Ci sono {count_inizio} inizi e {count_fine} fini... non è possibile trovare una soluzione al problema!")
+        exit(1)
 
     # crea lo stato iniziale e finale
     # (rappresentato da un array con 2 posizioni)
@@ -91,6 +100,7 @@ def pathFinder(matrice: np.array):
     # crea il problema
     p_monkey = Monkey(initial_state, goal_state, n)
 
+    
     # -------------- A* -------------- #
     print("A*\n")
 
@@ -101,10 +111,14 @@ def pathFinder(matrice: np.array):
     # risolve il problema usano la A*
     result = astar_search(p_monkey)
 
+    if result is None:
+       print("Il problema non è risolvibile!")
+       exit(1)
+
     # stampa le soluzione, i passi impegati ed il tempo impegato usando A*
     print(f"Execution Time: {(time()-start_time)}")
     print(f"Solution:\n {result.solution()}")
-    print(f"Path Cost: {result.path_cost}")
+    print(f"Path Cost: {result.path_cost}\n")
     
     # fa partire l'animazione con la soluzione trovata da A*
     Animation(matrice, n, result.solution()).start()
@@ -122,8 +136,8 @@ def pathFinder(matrice: np.array):
     result = breadth_first_tree_search(p_monkey)
 
     # stampa le soluzione, i passi impegati ed il tempo impegato usando BFS
-    print(f"Execution Time: {(time()-start_time)}\n")
-    print(f"Solution:\n {result.solution()}\n")
+    print(f"Execution Time: {(time()-start_time)}")
+    print(f"Solution:\n {result.solution()}")
     print(f"Path Cost: {result.path_cost}\n")
     
 
