@@ -1,4 +1,4 @@
-# MonkeyCleener
+# MonkeyCleaner
 
 <!-- da inserire gif-->
 A Monkey that cleans rooms
