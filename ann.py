@@ -44,22 +44,22 @@ def training(b_size=128, epoche=16):
     model.save(f'./Models/model_b{b_size}_e{epoche}.h5')
 
 
-def useModel(model_name, test_images: np.array, test_labels=None):
+def useModel(model_name, test_images: np.array, test_labels=None, toMatrix=True):
     # Carica un modello già allenato
     model = load_model(model_name)
     # Riconosce le lettere e le ritorna sottoforma di matrice di Float
     res = model.predict_classes(test_images)
 
-    res = res.reshape(
-            int(sqrt(len(res))), 
-            int(sqrt(len(res)))
-        ).astype("float32")
+    if toMatrix:
+        res = res.reshape(
+                int(sqrt(len(res))), 
+                int(sqrt(len(res)))
+            ).astype("float32")
 
     return res
-
 
 def annClassifier():
     # Se l'arogmento passato al main è --testing usa un modello già allenato per effettuare la classificazione
     # Ritorna un mumpyArray che verrà usato dal pathfinding    
     image_test = allInOnePrepare()
-    return useModel("./Models/model_b128_e16.h5", image_test)
+    return useModel("./Models/model_b10_e16.h5", image_test)

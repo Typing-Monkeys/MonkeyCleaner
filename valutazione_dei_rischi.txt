@@ -1,0 +1,32 @@
+Model Name: model_b1_e30.h5
+Accuracy: 0.7053819444444445
+
+Model Name: model_b64_e10.h5
+Accuracy: 0.7876388888888889
+
+Model Name: model_b10_e10.h5
+Accuracy: 0.7920138888888889
+
+Model Name: model_b5000_e500.h5
+Accuracy: 0.8006597222222223
+
+Model Name: model_b256_e30.h5
+Accuracy: 0.8042361111111112
+
+Model Name: model_b128_e16.h5
+Accuracy: 0.8130902777777778
+
+Model Name: model_b32_e32.h5
+Accuracy: 0.8155208333333334
+
+Model Name: model_b10_e30.h5
+Accuracy: 0.8181597222222222
+
+Model Name: model_b15_e16.h5
+Accuracy: 0.8186111111111112
+
+Model Name: model_b128_e30.h5
+Accuracy: 0.8260069444444444
+
+Model Name: model_b10_e16.h5
+Accuracy: 0.8386805555555555
