@@ -35,7 +35,7 @@ def prepare_data(file_name:str, split=False, t_size=0.1) -> tuple:
     return (x, None, y, None)
 
 
-def knn_classifier(dati_testing: np.array) -> np.array:
+def knn_classifier(dati_testing: np.array, k=3, toMatrix=True) -> np.array:
     data_train, data_test, label_train, label_test = prepare_data('trimmedData.csv')
 
     # KNN
@@ -50,28 +50,16 @@ def knn_classifier(dati_testing: np.array) -> np.array:
     start_time = time.time()
 
     # ret, result, neighbours, dist = knn.findNearest(data_test, k=1)
-    ret, result, neighbours, dist = knn.findNearest(dati_testing, k=3)
+    ret, result, neighbours, dist = knn.findNearest(dati_testing, k=k)
     
     print("Fatto: --- %s seconds ---\n" % round(time.time() - start_time, 2))
 
-    result = result.reshape(
-            int(sqrt(len(result))), 
-            int(sqrt(len(result)))
-        )
-
-    '''
-    # Accuracy
-    matches = result==label_test
-    correct = np.count_nonzero(matches)
-    accuracy = correct*100.0/result.size
-    print( accuracy )
-    '''
-    '''
-    print('Previsione', 'Valore Esatto')
-    print(result, "D che sarebbe 3")
-    print(ret)
-    print(neighbours)
-    print(dist)
-    '''
+    if toMatrix:
+        result = result.reshape(
+                int(sqrt(len(result))), 
+                int(sqrt(len(result)))
+            )
+    else:
+        result = result.flatten()
 
     return result

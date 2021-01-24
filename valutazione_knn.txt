@@ -1,0 +1,60 @@
+Importo il dataset ...
+Fatto: --- 2.94 seconds ---
+
+Inizio il training ...
+Fatto: --- 0.32 seconds ---
+
+Inizio il testing ...
+Fatto: --- 223.36 seconds ---
+
+K: 1
+Accuracy: 0.7894097222222223
+
+Importo il dataset ...
+Fatto: --- 2.91 seconds ---
+
+Inizio il training ...
+Fatto: --- 0.32 seconds ---
+
+Inizio il testing ...
+Fatto: --- 189.27 seconds ---
+
+K: 3
+Accuracy: 0.7785069444444445
+
+Importo il dataset ...
+Fatto: --- 2.9 seconds ---
+
+Inizio il training ...
+Fatto: --- 0.29 seconds ---
+
+Inizio il testing ...
+Fatto: --- 190.1 seconds ---
+
+K: 5
+Accuracy: 0.7753472222222222
+
+Importo il dataset ...
+Fatto: --- 2.91 seconds ---
+
+Inizio il training ...
+Fatto: --- 0.3 seconds ---
+
+Inizio il testing ...
+Fatto: --- 182.22 seconds ---
+
+K: 7
+Accuracy: 0.7720486111111111
+
+Importo il dataset ...
+Fatto: --- 2.91 seconds ---
+
+Inizio il training ...
+Fatto: --- 0.32 seconds ---
+
+Inizio il testing ...
+Fatto: --- 180.32 seconds ---
+
+K: 11
+Accuracy: 0.7681944444444444
+
