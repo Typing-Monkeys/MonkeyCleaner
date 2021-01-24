@@ -58,35 +58,8 @@ def useModel(model_name, test_images: np.array, test_labels=None):
     return res
 
 
-def annClassifier(argomento):
-    # Inizia il training con bachsize e epoche di default
-    if argomento == '--training':
-        training()
-        exit()
-    # Fa training ripetuto con diversi bachsize e epoche e ogni volta ne salva il modello creato 
-    #(funzione principalmente per il testing di diversi modelli di ANN)
-    elif argomento == '--Mtraining':
-        # i dati sono nel seguente formato:
-        # (batch_size, epoche)
-        t_data = [
-            (128, 16), #default
-            (10, 16), # probabile overfitting
-            (5000, 500), # ?
-            (64, 10), # non ci aspettiamo tanti problemi
-            ]
-        
-        for elem in t_data:
-            training(*elem)
-
-        exit()
-    
+def annClassifier():
     # Se l'arogmento passato al main è --testing usa un modello già allenato per effettuare la classificazione
-    # Ritorna un mumpyArray che verrà usato dal pathfinding
-    elif argomento == '--testing':
-        image_test = allInOnePrepare()
-        return useModel("./Models/model_b128_e16.h5", image_test)
-
-    # Contorllo degli argomenti passati, se sono errati ritorna l'avviso con il comando errato passatogli
-    elif argomento != '--training' and argomento != '--testing' and argomento != '--Mtraining':
-        print(f"Errore nel parametro di input, non risconosciuto: {argomento}")
-        exit()
+    # Ritorna un mumpyArray che verrà usato dal pathfinding    
+    image_test = allInOnePrepare()
+    return useModel("./Models/model_b128_e16.h5", image_test)

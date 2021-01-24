@@ -52,7 +52,7 @@ class Animation:
         self.bananas = pygame.transform.scale(self.bananas, (self.cellsize, self.cellsize))
 
         # muro (casella non accessibile)
-        self.wall = pygame.image.load('./Animation_imgs/Foresta.png').convert_alpha()
+        self.wall = pygame.image.load('./Animation_imgs/Vulcano.png').convert_alpha()
         self.wall = pygame.transform.scale(self.wall, (self.cellsize, self.cellsize))
         
         # stanza pulita (clean)

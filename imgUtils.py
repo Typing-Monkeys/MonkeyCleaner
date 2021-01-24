@@ -61,7 +61,11 @@ def monkeySee(mirror=False):
         # ESC pigiato
         if k%256 == 27:
             print("Premuto ESC, OOGA BOOGA...")
-            break
+            if result is None:
+                exit(1)
+            else:
+                break
+                
 
         # SPACE pigiato
         elif k%256 == 32:

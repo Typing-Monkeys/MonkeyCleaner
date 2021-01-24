@@ -2,7 +2,7 @@ from imgUtils import allInOnePrepare
 from knn import knn_classifier
 from pathFinding import pathFinder
 from sys import argv
-from monkeyLearning import annClassifier
+from ann import annClassifier
 
 # Il principio di tutto
 # Se l'argomento passato è --knn allora fa una classificazione con il knn
@@ -22,15 +22,9 @@ def main(argv: list):
 
     elif argv[0] == '--ann':
 
-        #Controllo il giusto numero di argomenti passatagli
-        if len(argv) < 2:
-
-            print("Passami --training oppure --testing")
-            return
-        
         # Invoca il classificatore con artificial neural network
         # gli passa come argomento l'opzione di training o di testing
-        ann_result = annClassifier(argv[1])
+        ann_result = annClassifier()
         # Passa la matrice riconosciuta attraverso ANN agli algoritmi di path Finding  
         pathFinder(ann_result)
         
