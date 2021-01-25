@@ -50,7 +50,7 @@ Di seguito una breve spiegazione e lista degli script eseguibili:
     
 * `annTraining.py`: script utilizzato per la fase di allenamento dell'ANN. Alla fine dalla procedura salva un file `.h5` che contiene il modello allenato. 
 Accetta i seguenti argomenti:
-    * `-Mtraining`: allena il modello con difersi batch ed epoche prestabilite
+    * `--Mtraining`: allena il modello con difersi batch ed epoche prestabilite
     * `annTraining.py <batch_size> <epoche>`: allena il modello utilizzando la dimenzione dei batch e il numero delle epoche scelte dall'utente
 
 * `evaluate.py`: script utilizzato per la fase di testing dei modelli. Accetta i seguenti argomenti:
