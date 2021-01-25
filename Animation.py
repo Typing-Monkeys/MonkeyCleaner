@@ -28,7 +28,7 @@ class Animation:
     # calcola la dimenzione appropriata di cellsize
     # in base alla dimenzione della matrice
     def __findCellSize(self):
-        return 300 - (self.dimension-3)*50
+        return 250 - (self.dimension-3)*50
 
     # funzione di classe per fare il load delle varie immagini per l'animazione
     def __load_imgs(self):

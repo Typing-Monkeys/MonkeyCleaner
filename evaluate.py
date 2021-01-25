@@ -4,6 +4,7 @@ from emnist import extract_training_samples
 from imgUtils import printImage
 import numpy as np
 import os
+from sys import argv
 
 lettere_nostre = [2, 3, 5, 18, 21, 23]
 
@@ -54,7 +55,7 @@ def knn_evaluate(test, newlables):
         print(f"Accuracy: {accuracy}\n")
 
 
-def main():
+def main(argvs):
     images, labels = extract_training_samples('letters')
     labels = labels - 1
 
@@ -76,14 +77,19 @@ def main():
 
     newlables = np.array(tmpLable, dtype="float32")
 
-    # test = np.array(newimgs)
     test = np.array(newimgs, dtype="float32")
 
-    # print(test[0])
+    if len(argvs) > 0:
+        if argvs[0] == "--ann":
+            ann_evaluate(test, newlables)
+        elif argvs[0] == "--knn":
+            knn_evaluate(test, newlables)
+        else:
+            print("Specifica --ann o --knn !")
 
-    # ann_evaluate(test, newlables)
-    knn_evaluate(test, newlables)
+    else:
+        print("Specifica --ann o --knn !")
 
 
 if __name__ == "__main__":
-    main()
+    main(argv[1:])

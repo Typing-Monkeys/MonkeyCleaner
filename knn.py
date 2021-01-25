@@ -35,7 +35,7 @@ def prepare_data(file_name:str, split=False, t_size=0.1) -> tuple:
     return (x, None, y, None)
 
 
-def knn_classifier(dati_testing: np.array, k=3, toMatrix=True) -> np.array:
+def knn_classifier(dati_testing: np.array, k=1, toMatrix=True) -> np.array:
     data_train, data_test, label_train, label_test = prepare_data('trimmedData.csv')
 
     # KNN

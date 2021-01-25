@@ -43,6 +43,9 @@ def monkeySee(mirror=False):
     # conterra' l'immagine finale
     result = None
 
+    print("-Premere barra spaziatrice per acqusire una foto")
+    print("-Premere ESC dopo aver acquisito una foto per continuare lo script")
+    
     while True:
         # legge frame by frame
         _, img = cam.read()
@@ -57,10 +60,9 @@ def monkeySee(mirror=False):
 
         # registra tasti premuti
         k = cv2.waitKey(1)
-        
         # ESC pigiato
         if k%256 == 27:
-            print("Premuto ESC, OOGA BOOGA...")
+            print("Premuto ESC")
             if result is None:
                 exit(1)
             else:
