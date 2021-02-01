@@ -12,9 +12,15 @@ def printImage(img, title):
 
 
 # esegue tutte le operazioni necessarie per rendere leggibili le immagini
-def allInOnePrepare():
-    # prende l'immagine dalla webcam
-    im = monkeySee()
+def allInOnePrepare(fromfile=False, fname='test'):
+    im = None
+
+    if fromfile:
+        # prende l'immagine da file
+        im = cv2.imread(fname)
+    else:
+        # prende l'immagine dalla webcam
+        im = monkeySee()
     
     # Trova coordinate e Gerarchie dell'immagine 
     im, contorni, gerarchia = monkeyDetect(im)
@@ -82,10 +88,13 @@ def monkeySee(mirror=False):
 
 # Prende un immagine (presunta tabella) e 
 # ne estrae le celle
-def monkeyDetect(img, inwebcam=False):
+def monkeyDetect(img, inwebcam=False, forceprint=True):
     # Converte l'immagine in GrayScale
     im1 = img.copy()
     im1 = cv2.cvtColor(im1, cv2.COLOR_BGR2GRAY)
+
+    if not inwebcam:
+        printImage(im1, 'Gray Scale')
 
     # immagine usata per l'output
     im = img.copy()
@@ -93,10 +102,15 @@ def monkeyDetect(img, inwebcam=False):
     # Elimina i grigi e trasforma l'immagine in Bianco su Nero
     ret, thresh_value = cv2.threshold(im1, 150, 255, cv2.THRESH_BINARY_INV+cv2.THRESH_OTSU)
     
+    if not inwebcam:
+        printImage(thresh_value, 'Binary Inv + OTSU')
     
     # dilata l'immagine per facilitare l'identificazione dei contorni
     kernel = np.ones((15, 15), np.uint8)
     dilated_value = cv2.dilate(thresh_value,kernel, iterations=1)
+
+    if not inwebcam:
+        printImage(dilated_value, 'Dilated')
 
     # trova i contorni nell'immagine
     contours, hierarchy = cv2.findContours(dilated_value, cv2.RETR_CCOMP, cv2.CHAIN_APPROX_SIMPLE)

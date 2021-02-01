@@ -58,8 +58,14 @@ def useModel(model_name, test_images: np.array, test_labels=None, toMatrix=True)
 
     return res
 
-def annClassifier():
+def annClassifier(fromfile=False, fname='test'):
     # Se l'arogmento passato al main è --testing usa un modello già allenato per effettuare la classificazione
     # Ritorna un mumpyArray che verrà usato dal pathfinding    
-    image_test = allInOnePrepare()
+    image_test = None
+
+    if fromfile == True:
+        image_test = allInOnePrepare(fromfile=fromfile, fname=fname)
+    else:
+        image_test = allInOnePrepare()
+    
     return useModel("./Models/model_b10_e16.h5", image_test)

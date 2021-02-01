@@ -30,17 +30,29 @@ def main(argv: list):
         if argv[0] == '--knn':
             
             # Prepara il dataset di training
-            dati_testing = allInOnePrepare()
+            dati_testing = None
+
+            if len(argv) == 2:
+                dati_testing = allInOnePrepare(fromfile=True, fname=argv[1])
+            else:
+                dati_testing = allInOnePrepare()
+
             # classifica i dati con knn
             knn_result = knn_classifier(dati_testing)
             # Passa la matrice riconosciuta attraverso KNN agli algoritmi di path Finding
             pathFinder(knn_result)
 
         elif argv[0] == '--ann':
-
+            
             # Invoca il classificatore con artificial neural network
             # gli passa come argomento l'opzione di training o di testing
-            ann_result = annClassifier()
+            ann_result = None
+            
+            if len(argv) == 2:
+                ann_result = annClassifier(fromfile=True, fname=argv[1])
+            else:
+                ann_result = annClassifier()
+
             # Passa la matrice riconosciuta attraverso ANN agli algoritmi di path Finding  
             pathFinder(ann_result)
         
